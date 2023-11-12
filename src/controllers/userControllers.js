@@ -2,6 +2,7 @@ const {user:User} = require("../../prisma/index")
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { sendMail } = require("../config/mailConfig");
 
 
 /**
@@ -132,14 +133,65 @@ module.exports.deleteUser = async (req, res)=> {
  * @param {*} res 
  * @returns user object 
  */
-module.exports.forgetPassword = async (req, res)=> {
+module.exports.forgotPassword = async (req, res)=> {
     try {
+        // check mail exists 
+        const user = await User.findUnique({where:{email:req.body.email}});
+        if(!user) return res.status(201).send("Your mail invalid");
 
+        // create token 
+        const date = Date.now();
+        const code = Math.floor(1000 + Math.random() * 9000);
+        const token = jwt.sign({code,date, email:user.email}, process.env.JWT_SECRET, {expiresIn: "7d"});
+
+        await sendMail({to:"rejaulkarim.bd.mi4@gmail.com", subject:"Forgot Password verification code", text:`${code}`});
+        res.status(200).send({token})
     } catch (error) {
         console.log(err);
         res.status(500).send("soothing wrong")
     }
 } 
+
+
+
+/**
+ * @description this function using for forget password
+ * @param {*} req 
+ * @param {*} res 
+ * @returns user object 
+ */
+const maxTime = 20 * 60 * 1000;
+const passwordSchema = Joi.object().keys({
+    code: Joi.number().min(4).required(),
+    password:Joi.string().min(6).max(15).required()
+});
+module.exports.newPassword = async (req, res)=> {
+    try {
+      // check valid data
+      const {error} = passwordSchema.validate(req.body);
+      if(error) return res.status(202).send("Invalid request");
+
+      const decode = jwt.decode(req.body.token);
+      const timeDiff = Date.now() - decode.date;
+      
+      //  check time limit 
+      if(timeDiff > maxTime) return res.status(201).send("Maximum time limit expirer");
+      
+      //  check code valid
+      if(decode.code !== req.body.code) return res.status(201).send("Code is not valid");
+
+      //  password bcrypt
+      req.body.password = await bcrypt.hash(req.body.password, 10);
+      const user =  await User.update({where:{email:decode.email},data:{password:req.body.password}});
+
+      res.status(200).send(user);
+    } catch (error) {
+        console.log(err);
+        res.status(500).send("soothing wrong")
+    }
+} 
+
+
 
 
 /**
@@ -149,6 +201,7 @@ module.exports.forgetPassword = async (req, res)=> {
  * @returns user object 
  */
 module.exports.logoutUser = async (req, res)=> {} 
+
 
 
 /**
