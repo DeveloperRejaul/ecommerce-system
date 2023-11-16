@@ -1,13 +1,10 @@
-/**
- * @Setup Article Link: https://www.programonaut.com/how-to-send-an-email-in-node-js-using-an-smtp-step-by-step/
- */
 const {createTransport} = require("nodemailer");
 const transporter = createTransport({
-    host: "smtp-relay.brevo.com",
+    host: process.env.HOST_DOMAIN,
     port: 587,
     auth: {
-        user: "devrejaul.official@gmail.com",
-        pass: "APCFyBLM0kp2jN9s",
+        user: process.env.USER,
+        pass: process.env.PASS
     },
 });
 
@@ -18,7 +15,7 @@ const transporter = createTransport({
  */
 module.exports.sendMail = async ({to, subject, text , html})=>{
     try {
-        transporter.sendMail({from:'devrejaul.official@gmail.com', subject, to, text , html}, (error, info)=>{
+        transporter.sendMail({from:process.env.MAIL_FROM, subject, to, text , html}, (error, info)=>{
             if (error) {
                 console.log(error);
             }else{

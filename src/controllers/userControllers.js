@@ -244,3 +244,36 @@ module.exports.loginUser = async (req, res)=> {
 
 } 
 
+
+/**
+ * @description this function using for google auth successful
+ * @param {*} req 
+ * @param {*} res 
+ * @returns user object 
+ */
+module.exports.googleAuthSuccess = async(req, res)=>{
+    try {
+        console.log(req.user); // all information in google 
+        res.status(200).send("auth success")
+    } catch (error) {
+        console.log(err);
+        res.status(500).send("soothing wrong")
+    }
+}
+
+
+/**
+ * @description this function using for google auth successful
+ * @param {*} req 
+ * @param {*} res 
+ * @returns user object 
+ */
+module.exports.googleAuthFailure = async(req, res)=>{
+    try {
+        res.status(200).send("auth failure")
+    } catch (error) {
+        console.log(err);
+        res.status(500).send("soothing wrong")
+    }
+}
+
