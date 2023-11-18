@@ -2,6 +2,7 @@ const {user:User} = require("../../prisma/index")
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const session = require("express-session")
 const { sendMail } = require("../config/mailConfig");
 
 
@@ -192,17 +193,20 @@ module.exports.newPassword = async (req, res)=> {
 } 
 
 
-
-
 /**
  * @description this function using for logout user
  * @param {*} req 
  * @param {*} res 
  * @returns user object 
  */
-module.exports.logoutUser = async (req, res)=> {} 
-
-
+module.exports.logoutUser = async (req, res)=> {
+    try {
+        console.log(req);
+    } catch (error) {
+        console.log(err);
+        res.status(500).send("soothing wrong")
+    }
+} 
 
 /**
  * @description this function using for login user
@@ -253,8 +257,9 @@ module.exports.loginUser = async (req, res)=> {
  */
 module.exports.googleAuthSuccess = async(req, res)=>{
     try {
-        console.log(req.user); // all information in google 
-        res.status(200).send("auth success")
+      let user =  await User.findUnique({where:{email:req.user.email}});
+      if(!user) user =  await User.create({data:{email:req.user.email, name:req.user.displayName, avatar:req.user.picture }})
+      res.status(200).send(user)
     } catch (error) {
         console.log(err);
         res.status(500).send("soothing wrong")
@@ -263,14 +268,14 @@ module.exports.googleAuthSuccess = async(req, res)=>{
 
 
 /**
- * @description this function using for google auth successful
+ * @description this function using for google auth Failure
  * @param {*} req 
  * @param {*} res 
  * @returns user object 
  */
 module.exports.googleAuthFailure = async(req, res)=>{
     try {
-        res.status(200).send("auth failure")
+        res.status(401).send("auth failure")
     } catch (error) {
         console.log(err);
         res.status(500).send("soothing wrong")

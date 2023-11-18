@@ -28,5 +28,14 @@ router.get("/google/failure", googleAuthFailure)
 router.get("/google/success", googleAuthSuccess)
 
 
+// facebook auth routes
+router.get('/facebook', passport.authenticate('facebook'));
+router.get('/facebook/callback',passport.authenticate('facebook', { failureRedirect: '/auth/facebook/failure', successRedirect:"/auth/facebook/success"}));
+router.get("/facebook/failure", async(req, res)=>{ res.send("failure")})
+router.get("/facebook/success", async(req, res)=>{res.send("success") ; console.log(req.user);})
+
+
+// linkedin auth routes 
+
 
 module.exports = router;
