@@ -21,7 +21,6 @@ const createUserSchema = Joi.object().keys({
 });
 module.exports.createUser = async (req, res)=> {
     try {
-        console.log(req.body);
         // check all requeued filed  
         if (!Object.keys(req.body).every(f=> requiredFields.includes(f))) return res.status(201).send("fields is missing")
         
