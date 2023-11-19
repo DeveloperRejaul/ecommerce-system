@@ -27,13 +27,19 @@ module.exports.createUser = async (req, res)=> {
         // check all filed data type
         const {error} = createUserSchema.validate(req.body);
         if(error) return res.status(202).send("Invalid request");
-         
+
+        // check mail unique
+        if(req.body.email){
+            const existUser = await User.findUnique({where:{email:req.body.email}})
+            if(existUser) return res.status(400).send("Email already exists");
+        }
+
         // bcrypt user password
         req.body.password = await bcrypt.hash(req.body.password, 10);
 
         // creating user 
-        const createdUser  = await User.create({data:req.body});
-        res.status(200).send({user:createdUser});
+        const user  = await User.create({data:req.body});
+        res.status(200).send(user);
     } catch (err) {
         console.log(err);
         if(err.code === "P2002") return  res.status(203).send("Email Already exists ");
