@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const {createUser, getUsers, updateUser, deleteUser, getUser, loginUser, logoutUser, forgotPassword, newPassword, googleAuthSuccess, googleAuthFailure} = require("../controllers/userControllers");
+const {createUser, getUsers, updateUser, deleteUser, getUser, loginUser, logoutUser, forgotPassword, newPassword, googleAuthSuccess, facebookAuthSuccess, githubAuthSuccess} = require("../controllers/userControllers");
 const { auth } = require("../middleware/auth");
 const passport = require("passport");
 const router = Router();
@@ -22,20 +22,20 @@ router.delete("/user:id",auth, deleteUser);
 
 // google auth routes 
 router.get('/google', passport.authenticate('google', { scope: [ 'email', 'profile' ] }));
-router.get( '/google/callback', passport.authenticate( 'google', { successRedirect: '/auth/google/success', failureRedirect: '/auth/google/failure'}));
-
-router.get("/google/failure", googleAuthFailure)
+router.get( '/google/callback', passport.authenticate( 'google', { successRedirect: '/auth/google/success', failureRedirect: '/auth/user/login'}));
 router.get("/google/success", googleAuthSuccess)
 
 
 // facebook auth routes
 router.get('/facebook', passport.authenticate('facebook'));
-router.get('/facebook/callback',passport.authenticate('facebook', { failureRedirect: '/auth/facebook/failure', successRedirect:"/auth/facebook/success"}));
-router.get("/facebook/failure", async(req, res)=>{ res.send("failure")})
-router.get("/facebook/success", async(req, res)=>{res.send("success") ; console.log(req.user);})
+router.get('/facebook/callback',passport.authenticate('facebook', { failureRedirect: '/auth/user/login', successRedirect:"/auth/facebook/success"}));
+router.get("/facebook/success", facebookAuthSuccess)
 
 
-// linkedin auth routes 
+// github auth routes 
+router.get('/github', passport.authenticate('github', { scope: [ 'user:email' ] }));
+router.get('/github/callback', passport.authenticate('github', { failureRedirect: '/auth/user/login', successRedirect:"/auth/github/success"}));
+router.get("/github/success",githubAuthSuccess)
 
 
 module.exports = router;

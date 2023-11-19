@@ -2,7 +2,7 @@ const {user:User} = require("../../prisma/index")
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const session = require("express-session")
+// const session = require("express-session")
 const { sendMail } = require("../config/mailConfig");
 
 
@@ -21,6 +21,7 @@ const createUserSchema = Joi.object().keys({
 });
 module.exports.createUser = async (req, res)=> {
     try {
+        console.log(req.body);
         // check all requeued filed  
         if (!Object.keys(req.body).every(f=> requiredFields.includes(f))) return res.status(201).send("fields is missing")
         
@@ -242,7 +243,7 @@ module.exports.loginUser = async (req, res)=> {
         }
         res.status(200).send("Password or Email invalid");
     } catch (error) {
-        console.log(err);
+        console.log(error);
         res.status(500).send("soothing wrong")
     }
 
@@ -261,24 +262,37 @@ module.exports.googleAuthSuccess = async(req, res)=>{
       if(!user) user =  await User.create({data:{email:req.user.email, name:req.user.displayName, avatar:req.user.picture }})
       res.status(200).send(user)
     } catch (error) {
-        console.log(err);
+        console.log(error);
         res.status(500).send("soothing wrong")
     }
 }
 
-
 /**
- * @description this function using for google auth Failure
+ * @description this function using for facebook auth successful
  * @param {*} req 
  * @param {*} res 
  * @returns user object 
  */
-module.exports.googleAuthFailure = async(req, res)=>{
+module.exports.facebookAuthSuccess = async(req, res)=>{
     try {
-        res.status(401).send("auth failure")
+      res.status(200).send("success")
     } catch (error) {
-        console.log(err);
+        console.log(error);
         res.status(500).send("soothing wrong")
     }
 }
 
+/**
+ * @description this function using for github auth successful
+ * @param {*} req 
+ * @param {*} res 
+ * @returns user object 
+ */
+module.exports.githubAuthSuccess = async(req, res)=>{
+    try {
+      res.status(200).send("login success");
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("soothing wrong")
+    }
+}
