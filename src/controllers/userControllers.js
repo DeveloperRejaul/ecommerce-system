@@ -144,14 +144,14 @@ module.exports.forgotPassword = async (req, res)=> {
     try {
         // check mail exists 
         const user = await User.findUnique({where:{email:req.body.email}});
-        if(!user) return res.status(201).send("Your mail invalid");
+        if(!user) return res.status(401).send("Your mail invalid");
 
         // create token 
         const date = Date.now();
         const code = Math.floor(1000 + Math.random() * 9000);
-        const token = jwt.sign({code,date, email:user.email}, process.env.JWT_SECRET, {expiresIn: "7d"});
+        const token = jwt.sign({code,date, email:user.email}, process.env.JWT_SECRET, {expiresIn: "5m"});
 
-        await sendMail({to:"rejaulkarim.bd.mi4@gmail.com", subject:"Forgot Password verification code", text:`${code}`});
+        await sendMail({to:req.body.email, subject:"Forgot Password verification code", text:`${code}`});
         res.status(200).send({token})
     } catch (error) {
         console.log(err);
