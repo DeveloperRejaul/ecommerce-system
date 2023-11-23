@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const {createUser, getUsers, updateUser, deleteUser, getUser, loginUser, logoutUser, forgotPassword, newPassword, googleAuthSuccess, facebookAuthSuccess, githubAuthSuccess} = require("../controllers/userControllers");
+const {createUser, getUsers, updateUser, deleteUser, getUser, loginUser, logoutUser, forgotPassword, newPassword, googleAuthSuccess, facebookAuthSuccess, githubAuthSuccess, codeVerification} = require("../controllers/userControllers");
 const { auth } = require("../middleware/auth");
 const passport = require("passport");
 const router = Router();
@@ -8,6 +8,7 @@ const router = Router();
 router.post("/user/login", loginUser)
 router.post("/user/logout", logoutUser)
 router.post("/user/forgot-password", forgotPassword)
+router.post("/user/code-check", codeVerification)
 router.post("/user/new-password", newPassword)
 
 

@@ -2,8 +2,9 @@ const {user:User} = require("../../prisma/index")
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-// const session = require("express-session")
 const { sendMail } = require("../config/mailConfig");
+const CryptoJS = require("crypto-js");
+
 
 
 /**
@@ -149,36 +150,36 @@ module.exports.forgotPassword = async (req, res)=> {
         // create token 
         const date = Date.now();
         const code = Math.floor(1000 + Math.random() * 9000);
-        const token = jwt.sign({code,date, email:user.email}, process.env.JWT_SECRET, {expiresIn: "5m"});
-
+        const token = CryptoJS.AES.encrypt(JSON.stringify({code,date, email:user.email}), process.env.JWT_SECRET).toString();
         await sendMail({to:req.body.email, subject:"Forgot Password verification code", text:`${code}`});
         res.status(200).send({token})
-    } catch (error) {
+    } catch (err) {
         console.log(err);
         res.status(500).send("soothing wrong")
     }
 } 
 
 
-
 /**
- * @description this function using for forget password
+ * @description this function using for forget password verification code check 
  * @param {*} req 
  * @param {*} res 
  * @returns user object 
  */
 const maxTime = 20 * 60 * 1000;
-const passwordSchema = Joi.object().keys({
+const codeSchema = Joi.object().keys({
     code: Joi.number().min(4).required(),
-    password:Joi.string().min(6).max(15).required()
+    token:Joi.string().required(),
 });
-module.exports.newPassword = async (req, res)=> {
+module.exports.codeVerification = async (req, res) => {
     try {
-      // check valid data
-      const {error} = passwordSchema.validate(req.body);
+    // check valid data
+      const {error} = codeSchema.validate(req.body);
       if(error) return res.status(202).send("Invalid request");
 
-      const decode = jwt.decode(req.body.token);
+      const bytes  = CryptoJS.AES.decrypt(req.body.token, process.env.JWT_SECRET);
+      const decode = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+
       const timeDiff = Date.now() - decode.date;
       
       //  check time limit 
@@ -187,14 +188,44 @@ module.exports.newPassword = async (req, res)=> {
       //  check code valid
       if(decode.code !== req.body.code) return res.status(201).send("Code is not valid");
 
+      res.status(200).send({message:"success",email:decode.email})
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("soothing wrong")
+    }
+}
+
+/**
+ * @description this function using for forget password
+ * @param {*} req 
+ * @param {*} res 
+ * @returns user object 
+ */
+const passwordSchema = Joi.object().keys({
+    password:Joi.string().min(6).max(15).required(),
+    token:Joi.string(),
+});
+module.exports.newPassword = async (req, res)=> {
+    try {
+      // check valid data
+      const {error} = passwordSchema.validate(req.body);
+      if(error) return res.status(202).send("Invalid request");
+
+      const bytes  = CryptoJS.AES.decrypt(req.body.token, process.env.JWT_SECRET);
+      const decode = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+     
+      const timeDiff = Date.now() - decode.date;
+      
+      //  check time limit 
+      if(timeDiff > maxTime) return res.status(201).send("Maximum time limit expirer");
+
       //  password bcrypt
       req.body.password = await bcrypt.hash(req.body.password, 10);
       const user =  await User.update({where:{email:decode.email},data:{password:req.body.password}});
-
       res.status(200).send(user);
-    } catch (error) {
+    } catch (err) {
         console.log(err);
-        res.status(500).send("soothing wrong")
+        res.status(500).send("soothing wrong");
     }
 } 
 
