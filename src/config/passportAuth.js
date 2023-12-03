@@ -8,7 +8,7 @@ const GitHubStrategy = require("passport-github2").Strategy;
 passport.use(new GoogleStrategy({
     clientID:process.env.CLIENT_ID,
     clientSecret:process.env.CLIENT_SECRET,
-    callbackURL:"http://localhost:4000/auth/google/callback",
+    callbackURL:"http://localhost:4000/api/v-1/auth/google/callback",
     passReqToCallback:true
 },
 (request, accessToken, refreshToken, profile, cb) => {
@@ -20,7 +20,7 @@ passport.use(new GoogleStrategy({
 passport.use(new FacebookStrategy ({
     clientID:process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "http://localhost:4000/auth/facebook/callback",
+    callbackURL: "http://localhost:4000/api/v-1/auth/facebook/callback",
     enableProof: true,
     profileFields: ['id', 'displayName', 'photos', 'email']
 },
@@ -33,7 +33,7 @@ function(accessToken, refreshToken, profile, cb) {
 passport.use(new GitHubStrategy({
   clientID: process.env.GITHUB_CLIENT_ID,
   clientSecret: process.env.GITHUB_SECRET,
-  callbackURL: "http://127.0.0.1:4000/auth/github/callback"
+  callbackURL: "http://localhost:4000/api/v-1/auth/github/callback"
 },
 function(accessToken, refreshToken, profile, done) {
   process.nextTick(function () {

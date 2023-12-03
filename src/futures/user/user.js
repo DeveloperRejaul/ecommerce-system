@@ -1,8 +1,11 @@
 const { Router } = require("express");
-const {createUser, getUsers, updateUser, deleteUser, getUser, loginUser, logoutUser, forgotPassword, newPassword, googleAuthSuccess, facebookAuthSuccess, githubAuthSuccess, codeVerification} = require("../controllers/userControllers");
-const { auth } = require("../middleware/auth");
+const { auth } = require("../../middleware/auth");
 const passport = require("passport");
 const router = Router();
+const {
+    createUser, getUsers, updateUser, deleteUser, getUser, loginUser, logoutUser, forgotPassword,
+    newPassword, googleAuthSuccess, facebookAuthSuccess, githubAuthSuccess, codeVerification
+} = require("./user.fn");
 
 //all user auth routes 
 router.post("/user/login", loginUser)
@@ -13,18 +16,18 @@ router.post("/user/new-password", newPassword)
 
 
 // all user routes 
-router.get("/user", auth ,getUsers);
-router.post("/user", createUser);
-router.get("/user:id",auth, getUser);
-router.put("/user:id",auth,updateUser);
-router.delete("/user:id",auth, deleteUser);
+router.get("/auth/user", auth ,getUsers);
+router.post("/auth/user", createUser);
+router.get("/auth/user:id",auth, getUser);
+router.put("/auth/user:id",auth,updateUser);
+router.delete("/auth/user:id",auth, deleteUser);
 
 
 
 // google auth routes 
-router.get('/google', passport.authenticate('google', { scope: [ 'email', 'profile' ] }));
-router.get( '/google/callback', passport.authenticate( 'google', { successRedirect: '/auth/google/success', failureRedirect: '/auth/user/login'}));
-router.get("/google/success", googleAuthSuccess)
+router.get('/auth/google', passport.authenticate('google', { scope: [ 'email', 'profile' ] }));
+router.get( '/auth/google/callback', passport.authenticate( 'google', { successRedirect: '/api/v-1/auth/google/success', failureRedirect: '/auth/user/login'}));
+router.get("/auth/google/success", googleAuthSuccess)
 
 
 // facebook auth routes

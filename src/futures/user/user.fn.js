@@ -1,11 +1,10 @@
-const {user:User} = require("../../prisma/index")
+const {user:User} = require("../../../prisma/index")
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { sendMail } = require("../config/mailConfig");
+const { sendMail } = require("../../config/mailConfig");
 const CryptoJS = require("crypto-js");
-
-
+const { oauthSuccess } = require("../../templates/oauthSuccess");
 
 /**
  * @description this function using for create user
@@ -251,13 +250,14 @@ module.exports.logoutUser = async (req, res)=> {
  * @param {*} res 
  * @returns user object 
  */
-const requiredField = ["email", "password"]
+const requiredField = ["email", "password", "isRemember"]
 const loginUserSchema = Joi.object().keys({
     email:Joi.string().email(),
     password:Joi.string().min(6).max(15),
+    isRemember:Joi.boolean()
 });
 module.exports.loginUser = async (req, res)=> {
-
+console.log(req);
     try {
         // check all requeued filed  
         if (!Object.keys(req.body).every(f=> requiredField.includes(f))) return res.status(201).send("fields is missing")
@@ -268,16 +268,21 @@ module.exports.loginUser = async (req, res)=> {
 
         const user = await User.findUnique({where:{email:req.body.email}});
 
-        if(user){
-            // check password valid
-           const isValid = await bcrypt.compare(req.body.password,user.password);
-           if(!isValid) return res.status(200).send("Password or Email invalid");
+        if(!user ) return res.status(200).send("Password or Email invalid");
+       
+        // check password valid
+        const isValid = await bcrypt.compare(req.body.password,user.password);
+        if(!isValid) return res.status(200).send("Password or Email invalid");
 
-           // creating wen token  
-           user.token = jwt.sign({email:user.email, id:user.id}, process.env.JWT_SECRET, {expiresIn: "7d"})
-           return res.status(200).send(user);
-        }
-        res.status(200).send("Password or Email invalid");
+        // creating wen token  
+        user.token = jwt.sign({email:user.email, id:user.id}, process.env.JWT_SECRET, {expiresIn: "7d"})
+        res.cookie(process.env.JWT_SECRET, user.token, {
+            httpOnly: true,
+            sameSite: 'None',
+            secure: true,
+            ...req.body.isRemember && { expires: new Date(Date.now() + 172800000/*2 days*/) },
+        });
+        res.status(200).send(user);
     } catch (error) {
         console.log(error);
         res.status(500).send("soothing wrong")
@@ -296,7 +301,8 @@ module.exports.googleAuthSuccess = async(req, res)=>{
     try {
       let user =  await User.findUnique({where:{email:req.user.email}});
       if(!user) user =  await User.create({data:{email:req.user.email, name:req.user.displayName, avatar:req.user.picture }})
-      res.status(200).send(user)
+      res.set('Content-Type', 'text/html');
+     res.send(oauthSuccess);
     } catch (error) {
         console.log(error);
         res.status(500).send("soothing wrong")
@@ -311,7 +317,8 @@ module.exports.googleAuthSuccess = async(req, res)=>{
  */
 module.exports.facebookAuthSuccess = async(req, res)=>{
     try {
-      res.status(200).send("success")
+        res.set('Content-Type', 'text/html');
+      res.send(oauthSuccess);
     } catch (error) {
         console.log(error);
         res.status(500).send("soothing wrong")
@@ -326,7 +333,8 @@ module.exports.facebookAuthSuccess = async(req, res)=>{
  */
 module.exports.githubAuthSuccess = async(req, res)=>{
     try {
-      res.status(200).send("login success");
+        res.set('Content-Type', 'text/html');
+        res.send(oauthSuccess);
     } catch (error) {
         console.log(error);
         res.status(500).send("soothing wrong")
