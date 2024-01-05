@@ -10,7 +10,6 @@ module.exports.createThread = ({fileName, data})=>{
     if(!fileName) return 'file name required'
     return new Promise((resolve, reject)=>{
         const worker = new Worker(path.join(path.resolve(),`src/threads/${fileName}`),{workerData:data});
-
         worker.on("message", (d)=>{resolve(d)});
         worker.on("error",(e)=>{reject(e)} )
     });   

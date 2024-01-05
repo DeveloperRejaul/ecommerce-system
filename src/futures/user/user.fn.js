@@ -12,7 +12,9 @@ const { oauthSuccess } = require("../../templates/oauthSuccess");
  * @param {*} res 
  * @returns create user object 
  */
-const requiredFields = ["email", "password", "name", "address"]
+const requiredFields = ["email", "password", "name"];
+const fields =["email", "password", "name", "location"];
+
 const createUserSchema = Joi.object().keys({
     name: Joi.string().min(4).max(30).required(),
     email:Joi.string().email().required(),
@@ -20,8 +22,12 @@ const createUserSchema = Joi.object().keys({
     address:Joi.object().keys({street:Joi.string(), city:Joi.string(), state:Joi.string(), zip:Joi.string()})
 });
 module.exports.createUser = async (req, res)=> {
+
     try {
-        // check all requeued filed  
+        // clean without  fields objects property
+        Object.keys(req.body).forEach(k => {if(!fields.includes(k)) delete req.body[k]} );
+
+        // check all requeued filed 
         if (!Object.keys(req.body).every(f=> requiredFields.includes(f))) return res.status(201).send("fields is missing")
         
         // check all filed data type
@@ -251,14 +257,17 @@ module.exports.logoutUser = async (req, res)=> {
  * @returns user object 
  */
 const requiredField = ["email", "password", "isRemember"]
+
 const loginUserSchema = Joi.object().keys({
     email:Joi.string().email(),
     password:Joi.string().min(6).max(15),
     isRemember:Joi.boolean()
 });
 module.exports.loginUser = async (req, res)=> {
-console.log(req);
     try {
+        // clean without  fields objects property
+        Object.keys(req.body).forEach(k => {if(!requiredField.includes(k)) delete req.body[k]} );
+
         // check all requeued filed  
         if (!Object.keys(req.body).every(f=> requiredField.includes(f))) return res.status(201).send("fields is missing")
 

@@ -22,7 +22,7 @@ app.use(passport.session())
 const corsOptions ={ origin:appJson.origin, credentials:true,  optionSuccessStatus:200 }
 app.use(cors(corsOptions))
 routes.forEach(fn=> app.use("/api/v-1", fn));
-app.get("/", (req, res) => res.send({ message: "server is ok" }));
+app.get("/", (_req, res) => res.send({ message: "server is ok" }));
 // app.use((req, res, next) => res.send({ message: "bad url" }));
 // app.use((err, req, res, next) => res.send({ message: "other error" }));
 app.listen(port, () => console.log(`app listening on port ${port}!`))
