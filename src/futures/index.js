@@ -1,9 +1,11 @@
-const userRouter = require("./user/user")
+const userRouter = require('./user/user');
+const catagoryRouter = require('./category/category');
 
 
-// need add all routes 
+// need add all routes add socket serveries  
 const routes = [
-    userRouter
-]
+	userRouter,
+	catagoryRouter,
+];
 
-module.exports = routes
+module.exports = routes;
