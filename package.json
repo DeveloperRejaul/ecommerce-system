@@ -4,7 +4,10 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "db:generate": "npx prisma generate",
+    "db:pull": "npx prisma db pull",
+    "db:push": "npx prisma db push"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +24,7 @@
     "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.7",
     "passport": "^0.6.0",
     "passport-facebook": "^3.0.0",

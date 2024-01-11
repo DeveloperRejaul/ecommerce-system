@@ -1,6 +1,5 @@
 require('dotenv').config();
 const {json,urlencoded,} = require('express');
-const port = process.env.PORT || 4000;
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const express = require('express');
@@ -12,6 +11,8 @@ require('./config/passportAuth.js');
 const http = require('http');
 const { socketStart } = require('./config/socket.js');
 const morgan = require('morgan');
+
+const port = process.env.PORT || 4000;
 
 
 module.exports = function App (){

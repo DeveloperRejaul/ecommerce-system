@@ -15,11 +15,17 @@ type address {
   zip    String
 }
 
+type image {
+  name  String
+  uri   String
+}
+
 enum Role {
   USER
   ADMIN
   MODERATOR
 }
+
 
 // user achema
 model User {
@@ -32,12 +38,12 @@ model User {
   Product   Product[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  Category  Category[]
+  Catagory  Catagory[]
   role      Role       @default(USER)
 }
 
-// product category schema
-model Category {
+// product catagory schema
+model Catagory {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   child     String[]
@@ -53,14 +59,15 @@ model Product {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   user       User     @relation(fields: [userId], references: [id])
   userId     String   @db.ObjectId
-  catagury   Category @relation(fields: [cataguryId], references: [id])
-  cataguryId String   @db.ObjectId
+  catagory   Catagory @relation(fields: [catagoryId], references: [id])
+  catagoryId String   @db.ObjectId
   name       String
-  title      String
-  images     String[]
-  price      String
-  discount   String
-  size       String
+  title      String?
+  images     image[]
+  price      Int
+  discount   Int?
+  size       String[]
+  description String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
