@@ -16,7 +16,7 @@ module.exports.auth = async (req, res, next) => {
 		if (!userExists) return res.status(400).send('Atomization failed');
 		req.email = user.email;
 		req.id = user.id;
-		req.role = user.role;
+		req.role = userExists.role;
 		next();
 	} catch (err) {
 		console.log(err);

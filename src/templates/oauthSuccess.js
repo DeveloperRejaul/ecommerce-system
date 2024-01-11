@@ -13,4 +13,4 @@ module.exports.oauthSuccess =   `<!DOCTYPE html>
     }, 2000);
     </script>
 </body>
-</html>`
+</html>`;

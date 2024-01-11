@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const { sendMail } = require('../../config/mailConfig');
 const CryptoJS = require('crypto-js');
 const { oauthSuccess } = require('../../templates/oauthSuccess');
+const { decodeAuthToken } = require('../../utils/decodeAuthToken');
 
 /**
  * @description this function using for create user
@@ -12,14 +13,13 @@ const { oauthSuccess } = require('../../templates/oauthSuccess');
  * @param {*} res 
  * @returns create user object 
  */
-const requiredFields = ['email', 'password', 'name'];
-const fields = ['email', 'password', 'name', 'location'];
-
+const fields = ['email', 'password', 'name', 'location', 'role'];
 const createUserSchema = Joi.object().keys({
 	name: Joi.string().min(4).max(30).required(),
 	email: Joi.string().email().required(),
 	password: Joi.string().min(6).max(15).required(),
-	address: Joi.object().keys({ street: Joi.string(), city: Joi.string(), state: Joi.string(), zip: Joi.string() })
+	address: Joi.object().keys({ street: Joi.string(), city: Joi.string(), state: Joi.string(), zip: Joi.string() }),
+	role:Joi.string().uppercase().valid('USER', 'ADMIN', 'MODERATOR')
 });
 module.exports.createUser = () => async (req, res) => {
 
@@ -27,15 +27,13 @@ module.exports.createUser = () => async (req, res) => {
 		// clean without  fields objects property
 		Object.keys(req.body).forEach(k => { if (!fields.includes(k)) delete req.body[k]; });
 
-		// check all requeued filed 
-		if (!Object.keys(req.body).every(f => requiredFields.includes(f))) return res.status(201).send('fields is missing');
-
 		// check all filed data type
 		const { error } = createUserSchema.validate(req.body);
 		if (error) return res.status(202).send('Invalid request');
 
 		// check mail unique
 		if (req.body.email) {
+			req.body.email = req.body.email.toLowerCase();
 			const existUser = await User.findUnique({ where: { email: req.body.email } });
 			if (existUser) return res.status(400).send('Email already exists');
 		}
@@ -44,8 +42,12 @@ module.exports.createUser = () => async (req, res) => {
 		req.body.password = await bcrypt.hash(req.body.password, 10);
 
 		// creating user 
-		const user = await User.create({ data: req.body });
-		res.status(200).send(user);
+		if ((req.body.role === 'USER') || (req.role === 'ADMIN' && ['USER', 'MODERATOR', 'ADMIN'].includes(req.body.role)) || (req.role === 'MODERATOR' && ['USER', 'MODERATOR'].includes(req.body.role))) {
+			const	user = await User.create({ data: req.body });
+			return	res.status(200).send(user);
+		}
+		res.status(401).send('Unauthenticated request');
+
 	} catch (err) {
 		console.log(err);
 		if (err.code === 'P2002') return res.status(203).send('Email Already exists ');
@@ -131,8 +133,12 @@ module.exports.updateUser = ()=> async (req, res) => {
  */
 module.exports.deleteUser = ()=> async (req, res) => {
 	try {
-		const user = await User.delete({ where: { id: req.params.id } });
-		res.status(200).send(user);
+		if(req.role === 'ADMIN' && req.rule === 'MODERATOR'){
+			const user = await User.delete({ where: { id: req.params.id } });
+			res.status(200).send(user);
+		}else{
+			res.status(200).send('Unauthenticated user' );
+		}
 	} catch (error) {
 		console.log(err);
 		res.status(500).send('soothing wrong');
@@ -259,9 +265,9 @@ module.exports.logoutUser = ()=> async (req, res) => {
 const requiredField = ['email', 'password', 'isRemember'];
 
 const loginUserSchema = Joi.object().keys({
-	email: Joi.string().email(),
-	password: Joi.string().min(6).max(15),
-	isRemember: Joi.boolean()
+	email: Joi.string().email().required(),
+	password: Joi.string().min(6).max(15).required(),
+	isRemember: Joi.boolean().required()
 });
 module.exports.loginUser = () => async (req, res) => {
 	try {
@@ -269,13 +275,9 @@ module.exports.loginUser = () => async (req, res) => {
 		// clean without  fields objects property
 		Object.keys(req.body).forEach(k => { if (!requiredField.includes(k)) delete req.body[k]; });
 
-		// check all requeued filed  
-		if (!Object.keys(req.body).every(f => requiredField.includes(f))) return res.status(201).send('fields is missing');
-
 		// check all filed data type
 		const { error } = loginUserSchema.validate(req.body);
 		if (error) return res.status(202).send('Invalid request');
-
 
 		const user = await User.findUnique({ where: { email: req.body.email } });
 		if (!user) return res.status(200).send('Password or Email invalid');
@@ -286,13 +288,7 @@ module.exports.loginUser = () => async (req, res) => {
 		if (!isValid) return res.status(200).send('Password or Email invalid');
 
 		// creating web token  
-		user.token = jwt.sign({ email: user.email, id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-		res.cookie(process.env.JWT_SECRET, user.token, {
-			httpOnly: true,
-			sameSite: 'None',
-			secure: true,
-			...req.body.isRemember && { expires: new Date(Date.now() + 172800000/*2 days*/) },
-		});
+		user.token = jwt.sign({ email: user.email, id: user.id }, process.env.JWT_SECRET, { expiresIn: req.body.isRemember ? '7d':'1d' });
 		res.status(200).send(user);
 	} catch (error) {
 		console.log(error);
@@ -351,3 +347,26 @@ module.exports.githubAuthSuccess = ()=> async (req, res) => {
 		res.status(500).send('soothing wrong');
 	}
 };
+
+
+
+
+const schema  = Joi.object().keys({
+	token:Joi.string().required()
+});
+module.exports.checkAuthUser = ()=> async (req, res )=> {
+	try {
+		const {error} =	schema.validate(req.body);
+		if(error) return res.status(401).send('Invalid request');
+		
+		const token = req.body.token.split(' ')[1];
+		const decode  = await decodeAuthToken(token);
+		if(!decode) return res.status(401).send('Authorization failed');
+		
+		res.status(200).send(decode);
+	} catch (error) {
+		console.log(error);
+		res.status(500).send('soothing wrong');
+	}
+};
+

@@ -11,6 +11,7 @@ const routes = require('./futures/index.js');
 require('./config/passportAuth.js');
 const http = require('http');
 const { socketStart } = require('./config/socket.js');
+const morgan = require('morgan');
 
 
 module.exports = function App (){
@@ -26,6 +27,7 @@ module.exports = function App (){
 		});
 	});
     
+	app.use(morgan('tiny'));
 	app.use(json());
 	app.use(urlencoded({extended:true}));
 	app.use(cookieParser());
