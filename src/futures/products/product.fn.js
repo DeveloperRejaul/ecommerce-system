@@ -25,7 +25,6 @@ const createProductSchema = Joi.object().keys({
 	rating:Joi.object().keys({members:Joi.number().min(0).required(),ratings:Joi.number().min(0).required()  }),
 	catagoryId: Joi.string().id().required(),
 	couponId:Joi.string().id()
-
 });
 
 module.exports.createProduct = (params)=> async (req, res) => {
@@ -49,7 +48,7 @@ module.exports.createProduct = (params)=> async (req, res) => {
 
 		
 		if(sportedUser.includes(req.role)){
-			const product = await Product.create({data: req.body});
+			const product = await Product.create({data: {...req.body, userId: req.id}});
 			return res.status(200).send(product);
 		}
 		if(req.files) req.files.forEach(img=>  deleteUploadFile(img.filename));
@@ -65,11 +64,12 @@ module.exports.createProduct = (params)=> async (req, res) => {
 /**
  * @description this function for get product
  * @returns 
- */
+*/
 
 module.exports.getProduct = () => async (req, res) => {
 	try {
-
+	 	const product =  await	Product.findMany();
+		res.status(200).send(product);
 	} catch (err) {
 		res.status(400).send('something wrong');
 		console.log(err);
@@ -82,7 +82,9 @@ module.exports.getProduct = () => async (req, res) => {
  */
 module.exports. getSingleProduct = () => async (req, res) => {
 	try {
-
+		const product =  await	Product.findUnique({where:{id: req.params.id}});
+		if(!product) return res.status(400).send('Product not found');
+		res.status(200).send(product);
 	} catch (err) {
 		res.status(400).send('something wrong');
 		console.log(err);
@@ -96,7 +98,7 @@ module.exports. getSingleProduct = () => async (req, res) => {
 
 module.exports. updateProduct = () => async (req, res) => {
 	try {
-
+		
 	} catch (err) {
 		res.status(400).send('something wrong');
 		console.log(err);
@@ -109,7 +111,9 @@ module.exports. updateProduct = () => async (req, res) => {
  */
 module.exports. deleteProduct = () => async (req, res) => {
 	try {
-
+		const product =  await	Product.delete({where:{id:req.params.id}});
+		if(!product) return res.status(400).send('Product not found');
+		res.status(200).send(product);
 	} catch (err) {
 		res.status(400).send('something wrong');
 		console.log(err);

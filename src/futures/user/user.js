@@ -15,7 +15,7 @@ module.exports = (params) => {
 	router.post('/user/login', loginUser(params));
 	router.post('/user/logout', logoutUser(params));
 	router.post('/user/check', checkAuthUser(params));
-	router.post('/user/signup', auth, upload.single('avatar'), createUser(params));
+	router.post('/user/signup',auth, upload.single('avatar'), createUser(params));
 
 	router.post('/user/forgot-password', forgotPassword(params));
 	router.post('/user/code-check', codeVerification(params));

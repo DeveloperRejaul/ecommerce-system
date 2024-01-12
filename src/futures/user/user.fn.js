@@ -337,7 +337,7 @@ const requiredField = ['email', 'password', 'isRemember'];
 const loginUserSchema = Joi.object().keys({
 	email: Joi.string().email().required(),
 	password: Joi.string().min(6).max(15).required(),
-	isRemember: Joi.boolean().required()
+	isRemember: Joi.boolean()
 });
 module.exports.loginUser = () => async (req, res) => {
 	try {
