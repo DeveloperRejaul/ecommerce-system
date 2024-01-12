@@ -14,6 +14,7 @@ module.exports.auth = async (req, res, next) => {
 		// check user exists
 		const userExists = await User.findUnique({ where: { id: user.id } });
 		if (!userExists) return res.status(400).send('Atomization failed');
+		
 		req.email = user.email;
 		req.id = user.id;
 		req.role = userExists.role;

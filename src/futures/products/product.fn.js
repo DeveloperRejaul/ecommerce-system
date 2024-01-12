@@ -1,65 +1,62 @@
 
 const Joi = require('joi');
 const { product:Product } = require('../../../prisma');
-const fs = require('fs');
-const path = require('path');
+const {userRole} = require('../../constants/constants');
+const { deleteUploadFile } = require('../../utils/file');
+
+
+const {ADMIN,MODERATOR,SUPER_ADMIN} = userRole;
+const sportedUser = [ADMIN,MODERATOR,SUPER_ADMIN];
 /**
  * @description this function for creating product
  * @returns 
  */
 
-const createProductFelids = ['catagory','name' ,'title', 'images','price','discount','size' ,'description', 'user'];
-const createSchema = Joi.object().keys({
-	catagory: Joi.string().id().required(),
-	user:Joi.string().id().required(),
-	name: Joi.string().min(5).max(30).required(),
-	title: Joi.string().min(5).max(100),
-	images: Joi.array().items(Joi.object().keys({name:Joi.string().required(), uri:Joi.string().required()})).max(5).min(1).required(),
-	price: Joi.number().required(),
-	discount:Joi.number(),
-	size: Joi.array().items(Joi.string().valid('ms','md', 'xl', 'xs', '2xl')).length(5).required(),
-	description:Joi.string().min(50).max(1000),
+const createProductSchema = Joi.object().keys({
+	name:Joi.string().min(5).max(30).required(),
+	title:Joi.string().min(20).max(100),
+	images:Joi.array().items(Joi.object().keys({name:Joi.string(), uri:Joi.string()})).min(1).max(5).required(),
+	buyPrice:Joi.number().min(0).required(),
+	sellPrice:Joi.number().min(0).greater(Joi.ref('buyPrice')).required(),
+	discount:Joi.number().less(Joi.ref('sellPrice')),
+	size:Joi.array().items(Joi.string().required().valid('sm', 'md', 'lg', 'xl', '2xl')).min(1).max(5).required(),
+	description:Joi.string().min(50).max(1000).required(),
+	quantity:Joi.number().min(0).required(),
+	rating:Joi.object().keys({members:Joi.number().min(0).required(),ratings:Joi.number().min(0).required()  }),
+	catagoryId: Joi.string().id().required(),
+	couponId:Joi.string().id()
+
 });
 
 module.exports.createProduct = (params)=> async (req, res) => {
 	try {
-
-		// check files exists 
-		if(req.files.length <= 0) return  res.status(400).send('Invalid request. product image required'); 
-        
-		// convert json data js object data
-		req.body  = JSON.parse(req.body.data || '{}');
-		req.body.user = req.id;
-
-		// formatted all images 
-		req.body.images = req.files.map(image=> ({name:image.fieldname, uri: image.filename}));
-    
-
-		console.log(req.body);
+		req.body = JSON.parse(req.body.data || '{}');
+		if(req.files) req.body.images = req.files.map(img=> ({name:img.fieldname, uri:img.filename}));
+		
 		// clean without  fields objects property
-		Object.keys(req.body).forEach(k => { if (!createProductFelids.includes(k)) delete req.body[k]; });
-
-
+		const fields = Object.keys(createProductSchema.describe().keys);
+		Object.keys(req.body).forEach(k => { if (!fields.includes(k)) delete req.body[k]; });
+	
 
 		// check all filed data type
-		const { error } = createSchema.validate(req.body);
-		if (error) {
-			// delete all products image
-			req.body.images.map(img=> fs.unlink(path.join(path.resolve() ,'/src/uploads/', img.uri), (err)=> console.log(err)));
-			return res.status(202).send('Invalid request');
+		const { error } = createProductSchema.validate(req.body);
+		console.log(req.body);
+		console.log(error);
+		if (error){
+			if(req.files) req.files.forEach(img=>  deleteUploadFile(img.filename));
+			return res.status(202).send(`Invalid request: ${error.details[0].message}`);
 		}
 
-		if(req.role === 'ADMIN' || req.role === 'MODERATOR') {
-            
+		
+		if(sportedUser.includes(req.role)){
 			const product = await Product.create({data: req.body});
 			return res.status(200).send(product);
 		}
-
-		// delete all products image 
-		req.body.images.map(img=> fs.unlink(path.join(path.resolve() ,'/src/uploads/', img.uri), (err)=> console.log(err)));
-		res.status(401).send('Unauthorized User' );
+		if(req.files) req.files.forEach(img=>  deleteUploadFile(img.filename));
+		res.status(401).send('Unauthenticated request');
 
 	} catch (err) {
+		if(req.files) req.files.forEach(img=>  deleteUploadFile(img.filename));
 		res.status(400).send('something wrong');
 		console.log(err);
 	}

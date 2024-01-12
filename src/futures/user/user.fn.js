@@ -4,8 +4,10 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { sendMail } = require('../../config/mailConfig');
 const CryptoJS = require('crypto-js');
-const { oauthSuccess } = require('../../templates/oauthSuccess');
 const { decodeAuthToken } = require('../../utils/decodeAuthToken');
+const { userRole } = require('../../constants/constants');
+const { deleteUploadFile } = require('../../utils/file');
+const {ADMIN,MODERATOR,SUPER_ADMIN,USER} = userRole;
 
 /**
  * @description this function using for create user
@@ -13,43 +15,66 @@ const { decodeAuthToken } = require('../../utils/decodeAuthToken');
  * @param {*} res 
  * @returns create user object 
  */
-const fields = ['email', 'password', 'name', 'location', 'role'];
 const createUserSchema = Joi.object().keys({
 	name: Joi.string().min(4).max(30).required(),
 	email: Joi.string().email().required(),
 	password: Joi.string().min(6).max(15).required(),
 	address: Joi.object().keys({ street: Joi.string(), city: Joi.string(), state: Joi.string(), zip: Joi.string() }),
-	role:Joi.string().uppercase().valid('USER', 'ADMIN', 'MODERATOR')
+	role: Joi.string().uppercase().valid(ADMIN,MODERATOR,SUPER_ADMIN,USER),
+	avatar: Joi.object().keys({name:Joi.string(), uri:Joi.string()}),
+	bookmark: Joi.array().items(Joi.string().id().required()),
 });
+
 module.exports.createUser = () => async (req, res) => {
 
 	try {
+		req.body = JSON.parse(req.body.data || '{}');
+		const {fieldname, filename} = req.file || {};
+		const avatar = {name:fieldname, uri:filename};
+		req.body.avatar = avatar;
+
+
 		// clean without  fields objects property
+		const fields = Object.keys(createUserSchema.describe().keys);
 		Object.keys(req.body).forEach(k => { if (!fields.includes(k)) delete req.body[k]; });
 
 		// check all filed data type
 		const { error } = createUserSchema.validate(req.body);
-		if (error) return res.status(202).send('Invalid request');
+		if (error) {
+			if(req.file)deleteUploadFile(req.file.filename);
+			return res.status(202).send('Invalid request');
+		}
+
 
 		// check mail unique
 		if (req.body.email) {
 			req.body.email = req.body.email.toLowerCase();
 			const existUser = await User.findUnique({ where: { email: req.body.email } });
-			if (existUser) return res.status(400).send('Email already exists');
+			if (existUser) {
+				if(req.file)deleteUploadFile(req.file.filename);
+				return res.status(400).send('Email already exists');
+			}
 		}
 
 		// bcrypt user password
 		req.body.password = await bcrypt.hash(req.body.password, 10);
 
 		// creating user 
-		if ((req.body.role === 'USER') || (req.role === 'ADMIN' && ['USER', 'MODERATOR', 'ADMIN'].includes(req.body.role)) || (req.role === 'MODERATOR' && ['USER', 'MODERATOR'].includes(req.body.role))) {
-			const	user = await User.create({ data: req.body });
-			return	res.status(200).send(user);
+		if (
+			(req.body.role === USER) || 
+			(req.role === userRole.SUPER_ADMIN && Object.keys(userRole).includes(req.body.role)) || 
+			(req.role === ADMIN && [USER, MODERATOR].includes(req.body.role)) || 
+			(req.role === MODERATOR && [USER].includes(req.body.role))) {
+			const user = await User.create({ data: req.body });
+			return res.status(200).send(user);
 		}
+
+		if(req.file)deleteUploadFile(req.file.filename);
 		res.status(401).send('Unauthenticated request');
 
 	} catch (err) {
 		console.log(err);
+		if(req.file) deleteUploadFile(req.file.filename);
 		if (err.code === 'P2002') return res.status(203).send('Email Already exists ');
 		res.status(500).send('soothing wrong');
 	}
@@ -62,7 +87,7 @@ module.exports.createUser = () => async (req, res) => {
  * @param {*} res 
  * @returns all user data array of object  
  */
-module.exports.getUsers = ()=> async (req, res) => {
+module.exports.getUsers = () => async (req, res) => {
 	try {
 		const users = await User.findMany();
 		res.status(200).send(users);
@@ -73,13 +98,14 @@ module.exports.getUsers = ()=> async (req, res) => {
 };
 
 
+
 /**
  * @description this function using for get single user
  * @param {*} req 
  * @param {*} res 
  * @returns single user object  
  */
-module.exports.getUser = ()=> async (req, res) => {
+module.exports.getUser = () => async (req, res) => {
 	try {
 		const user = await User.findUnique({ where: { id: req.params.id } });
 		res.status(200).send(user);
@@ -101,23 +127,57 @@ const updateUserSchema = Joi.object().keys({
 	name: Joi.string().min(4).max(30),
 	email: Joi.string().email(),
 	password: Joi.string().min(6).max(15),
-	address: Joi.object().keys({ street: Joi.string(), city: Joi.string(), state: Joi.string(), zip: Joi.string() })
+	address: Joi.object().keys({ street: Joi.string(), city: Joi.string(), state: Joi.string(), zip: Joi.string() }),
+	avatar: Joi.object().keys({name:Joi.string(), uri:Joi.string()}),
+	bookmark: Joi.array().items(Joi.string().id().required()),
+	role: Joi.string().uppercase().valid(ADMIN,MODERATOR,SUPER_ADMIN,USER),
 });
-module.exports.updateUser = ()=> async (req, res) => {
+module.exports.updateUser = () => async (req, res) => {
 	try {
+
+		req.body = JSON.parse(req.body.data || '{}');
+		const {fieldname, filename} = req.file || {};
+		const avatar = {name:fieldname, uri:filename};
+		req.body.avatar = avatar;
+
+
+		// clean without  fields objects property
+		const fields = Object.keys(updateUserSchema.describe().keys);
+		Object.keys(req.body).forEach(k => { if (!fields.includes(k)) delete req.body[k]; });
+		
+
 		// check all filed data type
 		const { error } = updateUserSchema.validate(req.body);
-		if (error) return res.status(202).send('Invalid request');
+		if (error){
+			if(req.file) deleteUploadFile(req.file.filename);
+			return res.status(202).send('Invalid request');
+		}
 
 		// password bcrypt
 		if (req.body.password) req.body.password = await bcrypt.hash(req.body.password, 10);
 
+		// check user exists
+		const existsUser = await User.findUnique({ where: { id: req.params.id }});
+		if(!existsUser) {
+			if(req.file) deleteUploadFile(req.file.filename);
+			return res.status(401).send('user not found');
+		}
+
 		//  updating user 
-		const user = await User.update({ where: { id: req.params.id }, data: req.body });
-		res.status(200).send(user);
+		if((req.body.role === USER) || 
+			(req.role === userRole.SUPER_ADMIN && Object.keys(userRole).includes(existsUser.role)) || 
+			(req.role === ADMIN && [USER, MODERATOR].includes(existsUser.role)) || 
+			(req.role === MODERATOR && [USER].includes(existsUser.role))) {
+			deleteUploadFile(existsUser.avatar.uri);
+			const user = await User.update({ where: { id: req.params.id }, data: req.body });
+			return res.status(200).send(user);
+		}
+		if(req.file) deleteUploadFile(req.file.filename);
+		res.status(401).send('Unauthenticated request');
 
 	} catch (error) {
 		console.log(err);
+		if(req.file) deleteUploadFile(req.file.filename);
 		if (err.code === 'P2002') return res.status(203).send('Email Already exists ');
 		res.status(500).send('soothing wrong');
 	}
@@ -131,14 +191,24 @@ module.exports.updateUser = ()=> async (req, res) => {
  * @param {*} res 
  * @returns deleted user
  */
-module.exports.deleteUser = ()=> async (req, res) => {
+module.exports.deleteUser = () => async (req, res) => {
 	try {
-		if(req.role === 'ADMIN' && req.rule === 'MODERATOR'){
+
+		// check user exists
+		const existsUser = await User.findUnique({ where: { id: req.params.id }});
+		if(!existsUser) return res.status(401).send('user not found');
+	
+
+		if ((req.body.role === USER) || 
+		(req.role === userRole.SUPER_ADMIN && Object.keys(userRole).includes(existsUser.role)) || 
+		(req.role === ADMIN && [USER, MODERATOR].includes(existsUser.role)) || 
+		(req.role === MODERATOR && [USER].includes(existsUser.role))) {
+			if(req.file) deleteUploadFile(existsUser.avatar.uri);
 			const user = await User.delete({ where: { id: req.params.id } });
-			res.status(200).send(user);
-		}else{
-			res.status(200).send('Unauthenticated user' );
+			return	res.status(200).send(user);
 		}
+		res.status(200).send('Unauthenticated user');
+
 	} catch (error) {
 		console.log(err);
 		res.status(500).send('soothing wrong');
@@ -152,7 +222,7 @@ module.exports.deleteUser = ()=> async (req, res) => {
  * @param {*} res 
  * @returns user object 
  */
-module.exports.forgotPassword = ()=> async (req, res) => {
+module.exports.forgotPassword = () => async (req, res) => {
 	try {
 		// check mail exists 
 		const user = await User.findUnique({ where: { email: req.body.email } });
@@ -182,7 +252,7 @@ const codeSchema = Joi.object().keys({
 	code: Joi.number().min(4).required(),
 	token: Joi.string().required(),
 });
-module.exports.codeVerification = ()=> async (req, res) => {
+module.exports.codeVerification = () => async (req, res) => {
 	try {
 		// check valid data
 		const { error } = codeSchema.validate(req.body);
@@ -216,7 +286,7 @@ const passwordSchema = Joi.object().keys({
 	password: Joi.string().min(6).max(15).required(),
 	token: Joi.string(),
 });
-module.exports.newPassword = ()=> async (req, res) => {
+module.exports.newPassword = () => async (req, res) => {
 	try {
 		// check valid data
 		const { error } = passwordSchema.validate(req.body);
@@ -247,7 +317,7 @@ module.exports.newPassword = ()=> async (req, res) => {
  * @param {*} res 
  * @returns user object 
  */
-module.exports.logoutUser = ()=> async (req, res) => {
+module.exports.logoutUser = () => async (req, res) => {
 	try {
 		console.log(req);
 	} catch (error) {
@@ -271,7 +341,7 @@ const loginUserSchema = Joi.object().keys({
 });
 module.exports.loginUser = () => async (req, res) => {
 	try {
-		
+
 		// clean without  fields objects property
 		Object.keys(req.body).forEach(k => { if (!requiredField.includes(k)) delete req.body[k]; });
 
@@ -288,7 +358,7 @@ module.exports.loginUser = () => async (req, res) => {
 		if (!isValid) return res.status(200).send('Password or Email invalid');
 
 		// creating web token  
-		user.token = jwt.sign({ email: user.email, id: user.id }, process.env.JWT_SECRET, { expiresIn: req.body.isRemember ? '7d':'1d' });
+		user.token = jwt.sign({ email: user.email, id: user.id }, process.env.JWT_SECRET, { expiresIn: req.body.isRemember ? '7d' : '1d' });
 		res.status(200).send(user);
 	} catch (error) {
 		console.log(error);
@@ -298,71 +368,18 @@ module.exports.loginUser = () => async (req, res) => {
 };
 
 
-/**
- * @description this function using for google auth successful
- * @param {*} req 
- * @param {*} res 
- * @returns user object 
- */
-module.exports.googleAuthSuccess = ()=> async (req, res) => {
-	try {
-		let user = await User.findUnique({ where: { email: req.user.email } });
-		if (!user) user = await User.create({ data: { email: req.user.email, name: req.user.displayName, avatar: req.user.picture } });
-		res.set('Content-Type', 'text/html');
-		res.send(oauthSuccess);
-	} catch (error) {
-		console.log(error);
-		res.status(500).send('soothing wrong');
-	}
-};
-
-/**
- * @description this function using for facebook auth successful
- * @param {*} req 
- * @param {*} res 
- * @returns user object 
- */
-module.exports.facebookAuthSuccess = ()=> async (req, res) => {
-	try {
-		res.set('Content-Type', 'text/html');
-		res.send(oauthSuccess);
-	} catch (error) {
-		console.log(error);
-		res.status(500).send('soothing wrong');
-	}
-};
-
-/**
- * @description this function using for github auth successful
- * @param {*} req 
- * @param {*} res 
- * @returns user object 
- */
-module.exports.githubAuthSuccess = ()=> async (req, res) => {
-	try {
-		res.set('Content-Type', 'text/html');
-		res.send(oauthSuccess);
-	} catch (error) {
-		console.log(error);
-		res.status(500).send('soothing wrong');
-	}
-};
-
-
-
-
-const schema  = Joi.object().keys({
-	token:Joi.string().required()
+const schema = Joi.object().keys({
+	token: Joi.string().required()
 });
-module.exports.checkAuthUser = ()=> async (req, res )=> {
+module.exports.checkAuthUser = () => async (req, res) => {
 	try {
-		const {error} =	schema.validate(req.body);
-		if(error) return res.status(401).send('Invalid request');
-		
+		const { error } = schema.validate(req.body);
+		if (error) return res.status(401).send('Invalid request');
+
 		const token = req.body.token.split(' ')[1];
-		const decode  = await decodeAuthToken(token);
-		if(!decode) return res.status(401).send('Authorization failed');
-		
+		const decode = await decodeAuthToken(token);
+		if (!decode) return res.status(401).send('Authorization failed');
+
 		res.status(200).send(decode);
 	} catch (error) {
 		console.log(error);

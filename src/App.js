@@ -1,13 +1,9 @@
 require('dotenv').config();
 const {json,urlencoded,} = require('express');
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
 const express = require('express');
 const cors = require('cors');
-const passport = require('passport');
 const settings = require('./setting.js');
 const routes = require('./futures/index.js');
-require('./config/passportAuth.js');
 const http = require('http');
 const { socketStart } = require('./config/socket.js');
 const morgan = require('morgan');
@@ -31,10 +27,7 @@ module.exports = function App (){
 	app.use(morgan('tiny'));
 	app.use(json());
 	app.use(urlencoded({extended:true}));
-	app.use(cookieParser());
-	app.use(session({ secret:process.env.SESSION_SECRET,resave: false, saveUninitialized: true,  cookie: { secure: false }}));
-	app.use(passport.initialize());
-	app.use(passport.session());
+
     
 	const corsOptions ={ origin:settings.origin, credentials:true,  optionSuccessStatus:200 };
 	app.use(cors(corsOptions));

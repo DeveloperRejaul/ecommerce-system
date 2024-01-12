@@ -8,66 +8,111 @@ datasource db {
 }
 
 /// all types
-type address {
+type UserAddress {
   street String
   city   String
   state  String
   zip    String
 }
 
-type image {
-  name  String
-  uri   String
-}
-
-enum Role {
-  USER
+enum UserRole {
+  SUPER_ADMIN
   ADMIN
   MODERATOR
+  USER
 }
 
+enum Type {
+  PRESENT
+  FIX
+}
 
-// user achema
+type image {
+  name String
+  uri  String
+}
+
+type ProductRating {
+  members Int
+  ratings Int
+}
+
 model User {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  email     String     @unique
-  password  String?
-  name      String?
-  address   address?
-  avatar    String?
-  Product   Product[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  Catagory  Catagory[]
-  role      Role       @default(USER)
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  email        String         @unique
+  password     String?
+  name         String?
+  address      UserAddress?
+  avatar       image?
+  bookmark     String[]       @db.ObjectId
+  role         UserRole       @default(USER)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  Product      Product[]
+  Catagory     Catagory[]
+  Coupon       Coupon[]
+  Comment      Comment[]
 }
 
-// product catagory schema
+
 model Catagory {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  name           String       @unique
+  child          String[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  userId         String       @db.ObjectId
+  User           User         @relation(fields: [userId], references: [id])
+  Product        Product[]
+}
+
+model Product {
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  title          String?
+  images         image[]
+  buyPrice       Int
+  sellPrice      Int
+  discount       Int?
+  size           String[]
+  description    String
+  quantity       Int
+  rating         ProductRating?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  userId         String         @db.ObjectId
+  catagoryId     String         @db.ObjectId
+  couponId       String[]       @db.ObjectId
+  User           User           @relation(fields: [userId], references: [id])
+  Catagory       Catagory       @relation(fields: [catagoryId], references: [id])
+  Coupon         Coupon?        @relation(fields: [couponId], references: [id])
+  Comment        Comment[]
+}
+
+model Coupon {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  type           Type
+  amount         String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  userId         String       @db.ObjectId
+  User           User         @relation(fields: [userId], references: [id])
+  Product        Product[]
+}
+
+model Comment {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  child     String[]
-  Product   Product[]
-  user      User      @relation(fields: [userId], references: [id])
-  userId    String    @db.ObjectId
+  text      String
+  like      Int?
+  unLike    Int?
+  love      Int?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-}
-
-// product scehema
-model Product {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  user       User     @relation(fields: [userId], references: [id])
-  userId     String   @db.ObjectId
-  catagory   Catagory @relation(fields: [catagoryId], references: [id])
-  catagoryId String   @db.ObjectId
-  name       String
-  title      String?
-  images     image[]
-  price      Int
-  discount   Int?
-  size       String[]
-  description String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  perentId  String    @db.ObjectId
+  productId String    @db.ObjectId
+  userId    String    @db.ObjectId
+  User      User      @relation(fields: [userId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+  prent     Comment   @relation(name: "child", fields: [perentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  child     Comment[] @relation(name: "child")
 }
