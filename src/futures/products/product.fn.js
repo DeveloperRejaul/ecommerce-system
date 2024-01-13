@@ -27,7 +27,7 @@ const createProductSchema = Joi.object().keys({
 	couponId:Joi.string().id()
 });
 
-module.exports.createProduct = (params)=> async (req, res) => {
+module.exports.createProduct = ()=> async (req, res) => {
 	try {
 		req.body = JSON.parse(req.body.data || '{}');
 		if(req.files) req.body.images = req.files.map(img=> ({name:img.fieldname, uri:img.filename}));
@@ -39,8 +39,6 @@ module.exports.createProduct = (params)=> async (req, res) => {
 
 		// check all filed data type
 		const { error } = createProductSchema.validate(req.body);
-		console.log(req.body);
-		console.log(error);
 		if (error){
 			if(req.files) req.files.forEach(img=>  deleteUploadFile(img.filename));
 			return res.status(202).send(`Invalid request: ${error.details[0].message}`);
@@ -68,7 +66,7 @@ module.exports.createProduct = (params)=> async (req, res) => {
 
 module.exports.getProduct = () => async (req, res) => {
 	try {
-	 	const product =  await	Product.findMany();
+		const product =  await	Product.findMany();
 		res.status(200).send(product);
 	} catch (err) {
 		res.status(400).send('something wrong');
@@ -96,9 +94,40 @@ module.exports. getSingleProduct = () => async (req, res) => {
  * @returns 
  */
 
+const updateProductSchema = Joi.object().keys({
+	name:Joi.string().min(5).max(30),
+	title:Joi.string().min(20).max(100),
+	images:Joi.array().items(Joi.object().keys({name:Joi.string(), uri:Joi.string()})).min(1).max(5),
+	buyPrice:Joi.number().min(0),
+	sellPrice:Joi.number().min(0).greater(Joi.ref('buyPrice')),
+	discount:Joi.number().less(Joi.ref('sellPrice')),
+	size:Joi.array().items(Joi.string().required().valid('sm', 'md', 'lg', 'xl', '2xl')).min(1).max(5),
+	description:Joi.string().min(50).max(1000),
+	quantity:Joi.number().min(0),
+	rating:Joi.object().keys({members:Joi.number().min(0).required(),ratings:Joi.number().min(0).required()  }),
+	catagoryId: Joi.string().id(),
+	couponId:Joi.string().id()
+});
 module.exports. updateProduct = () => async (req, res) => {
 	try {
+		req.body = JSON.parse(req.body.data || '{}');
+		if(req.files) req.body.images = req.files.map(img=> ({name:img.fieldname, uri:img.filename}));
 		
+
+		// check all filed data type
+		const { error } = updateProductSchema.validate(req.body);
+		if (error){
+			if(req.files) req.files.forEach(img=>  deleteUploadFile(img.filename));
+			return res.status(202).send(`Invalid request: ${error.details[0].message}`);
+		}
+
+		if(sportedUser.includes(req.role)){
+			const product = await Product.update({data:req.body, where:{id:req.params.id}});
+			return res.status(200).send(product);
+		}
+		if(req.files) req.files.forEach(img=>  deleteUploadFile(img.filename));
+		res.status(401).send('Unauthenticated request');
+
 	} catch (err) {
 		res.status(400).send('something wrong');
 		console.log(err);
