@@ -32,11 +32,6 @@ type image {
   uri  String
 }
 
-type ProductRating {
-  members Int
-  ratings Int
-}
-
 model User {
   id        String       @id @default(auto()) @map("_id") @db.ObjectId
   email     String       @unique
@@ -52,6 +47,7 @@ model User {
   Catagory  Catagory[]
   Coupon    Coupon[]
   Comment   Comment[]
+  Rating    Rating[]
 }
 
 model Catagory {
@@ -66,7 +62,7 @@ model Catagory {
 }
 
 model Product {
-  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   title       String?
   images      image[]
@@ -76,24 +72,26 @@ model Product {
   size        String[]
   description String
   quantity    Int
-  rating      ProductRating?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  userId      String         @db.ObjectId
-  catagoryId  String         @db.ObjectId
-  couponId    String[]       @db.ObjectId
-  User        User           @relation(fields: [userId], references: [id])
-  Catagory    Catagory       @relation(fields: [catagoryId], references: [id])
-  Coupon      Coupon?        @relation(fields: [couponId], references: [id])
+  rating      Float?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String    @db.ObjectId
+  catagoryId  String    @db.ObjectId
+  couponId    String[]  @db.ObjectId
+  User        User      @relation(fields: [userId], references: [id])
+  Catagory    Catagory  @relation(fields: [catagoryId], references: [id])
+  Coupon      Coupon?   @relation(fields: [couponId], references: [id])
   Comment     Comment[]
+  Rating      Rating[]
 }
 
 model Coupon {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  type       Type
-  name      String
-  amount    String
+  type      Type
+  name      String    @unique
+  amount    Int
   token     String
+  time      String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   userId    String    @db.ObjectId
@@ -113,7 +111,17 @@ model Comment {
   productId String    @db.ObjectId
   userId    String    @db.ObjectId
   User      User      @relation(fields: [userId], references: [id])
-  product   Product   @relation(fields: [productId], references: [id])
+  Product   Product   @relation(fields: [productId], references: [id])
   prent     Comment   @relation(name: "child", fields: [perentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   child     Comment[] @relation(name: "child")
+}
+
+model Rating {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  rating    Int
+  text      String?
+  userId    String  @db.ObjectId
+  productId String  @db.ObjectId
+  User      User    @relation(fields: [userId], references: [id])
+  Product   Product @relation(fields: [productId], references: [id])
 }

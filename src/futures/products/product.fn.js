@@ -22,9 +22,8 @@ const createProductSchema = Joi.object().keys({
 	size:Joi.array().items(Joi.string().required().valid('sm', 'md', 'lg', 'xl', '2xl')).min(1).max(5).required(),
 	description:Joi.string().min(50).max(1000).required(),
 	quantity:Joi.number().min(0).required(),
-	rating:Joi.object().keys({members:Joi.number().min(0).required(),ratings:Joi.number().min(0).required()  }),
 	catagoryId: Joi.string().id().required(),
-	couponId:Joi.string().id()
+	couponId: Joi.array().items( Joi.string().id())
 });
 
 module.exports.createProduct = ()=> async (req, res) => {
@@ -97,25 +96,29 @@ module.exports. getSingleProduct = () => async (req, res) => {
 const updateProductSchema = Joi.object().keys({
 	name:Joi.string().min(5).max(30),
 	title:Joi.string().min(20).max(100),
-	images:Joi.array().items(Joi.object().keys({name:Joi.string(), uri:Joi.string()})).min(1).max(5),
+	images:Joi.array().items(Joi.object().keys({name:Joi.string(), uri:Joi.string()})).max(5),
 	buyPrice:Joi.number().min(0),
 	sellPrice:Joi.number().min(0).greater(Joi.ref('buyPrice')),
 	discount:Joi.number().less(Joi.ref('sellPrice')),
 	size:Joi.array().items(Joi.string().required().valid('sm', 'md', 'lg', 'xl', '2xl')).min(1).max(5),
 	description:Joi.string().min(50).max(1000),
 	quantity:Joi.number().min(0),
-	rating:Joi.object().keys({members:Joi.number().min(0).required(),ratings:Joi.number().min(0).required()  }),
 	catagoryId: Joi.string().id(),
-	couponId:Joi.string().id()
+	couponId:Joi.array().items( Joi.string().id()) 
 });
-module.exports. updateProduct = () => async (req, res) => {
+module.exports.updateProduct = () => async (req, res) => {
 	try {
 		req.body = JSON.parse(req.body.data || '{}');
 		if(req.files) req.body.images = req.files.map(img=> ({name:img.fieldname, uri:img.filename}));
 		
+		// clean without  fields objects property
+		const fields = Object.keys(updateProductSchema.describe().keys);
+		Object.keys(req.body).forEach(k => { if (!fields.includes(k)) delete req.body[k]; });
+	
 
 		// check all filed data type
 		const { error } = updateProductSchema.validate(req.body);
+
 		if (error){
 			if(req.files) req.files.forEach(img=>  deleteUploadFile(img.filename));
 			return res.status(202).send(`Invalid request: ${error.details[0].message}`);
