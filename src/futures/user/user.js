@@ -1,32 +1,31 @@
-const { Router } = require('express');
-const { auth } = require('../../middleware/auth');
+import { Router } from 'express';
+import { auth } from '../../middleware/auth';
+import {
+  createUser, getUsers, updateUser, deleteUser, getUser,
+  loginUser, logoutUser, forgotPassword,
+  newPassword, codeVerification,
+  checkAuthUser,
+} from './user.fn';
+
+import { upload } from '../../middleware/fileUp';
+
 const router = Router();
-const {
-	createUser, getUsers, updateUser, deleteUser, getUser, 
-	loginUser, logoutUser, forgotPassword,
-	newPassword, codeVerification,
-	checkAuthUser
-} = require('./user.fn');
-const { upload } = require('../../middleware/fileUp');
 
+export default (params) => {
+  router.post('/user/login', loginUser(params));
+  router.post('/user/logout', logoutUser(params));
+  router.post('/user/check', checkAuthUser(params));
+  router.post('/user/signup', auth, upload.single('avatar'), createUser(params));
 
-module.exports = (params) => {
+  router.post('/user/forgot-password', forgotPassword(params));
+  router.post('/user/code-check', codeVerification(params));
+  router.post('/user/new-password', newPassword(params));
 
-	router.post('/user/login', loginUser(params));
-	router.post('/user/logout', logoutUser(params));
-	router.post('/user/check', checkAuthUser(params));
-	router.post('/user/signup',auth, upload.single('avatar'), createUser(params));
+  // all user routes
+  router.get('/auth/user', auth, getUsers(params));
+  router.get('/auth/user/:id', auth, getUser(params));
+  router.put('/auth/user/:id', auth, upload.single('avatar'), updateUser(params));
+  router.delete('/auth/user/:id', auth, deleteUser(params));
 
-	router.post('/user/forgot-password', forgotPassword(params));
-	router.post('/user/code-check', codeVerification(params));
-	router.post('/user/new-password', newPassword(params));
-
-	// all user routes 
-	router.get('/auth/user', auth, getUsers(params));
-	router.get('/auth/user/:id', auth, getUser(params));
-	router.put('/auth/user/:id', auth,upload.single('avatar'), updateUser(params));
-	router.delete('/auth/user/:id', auth, deleteUser(params));
-
-
-	return router;
+  return router;
 };

@@ -1,15 +1,14 @@
-const userRouter = require('./user/user');
-const catagoryRouter = require('./catagory/catagory');
-const productRouter = require('./products/product');
-const couponRouter = require('./coupon/coupon');
-const ratingRouter = require('./rating/rating');
+import userRouter from './user/user';
+import catagoryRouter from './catagory/catagory';
+import productRouter from './products/product';
+import couponRouter from './coupon/coupon';
+import ratingRouter from './rating/rating';
 
-// need add all routes add socket serveries  
-module.exports = [
-	userRouter,
-	catagoryRouter,
-	productRouter,
-	couponRouter,
-	ratingRouter
+// need add all routes add socket serveries
+export default [
+  userRouter,
+  catagoryRouter,
+  productRouter,
+  couponRouter,
+  ratingRouter,
 ];
-

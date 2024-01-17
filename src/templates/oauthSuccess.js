@@ -1,4 +1,4 @@
-module.exports.oauthSuccess =   `<!DOCTYPE html>
+export const oauthSuccess = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
