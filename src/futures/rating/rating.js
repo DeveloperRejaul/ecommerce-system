@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { creatingRating, getAllRating, updateRating } from './rating.fn';
+import { creatingRating, deleteRating, getAllRating, updateRating } from './rating.fn';
 import { auth } from '../../middleware/auth';
 
 const router = Router();
@@ -15,7 +15,7 @@ export default (params) => {
   router.put('/rating/:id', auth, updateRating(params));
 
   // delete  rating access only ADMIN , SUPER_ADMIN , MODERATOR
-  router.delete('/rating/:id', () => {});
+  router.delete('/rating/:id', auth, deleteRating(params));
 
   return router;
 };

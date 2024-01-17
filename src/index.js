@@ -1,5 +1,3 @@
-const App = require('./App');
+import App from './App';
 
-(function () {
-  App();
-}());
+(() => { App(); })();

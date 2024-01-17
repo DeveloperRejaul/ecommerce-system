@@ -107,3 +107,20 @@ export const updateRating = () => async (req, res) => {
     console.log(error);
   }
 };
+
+export const deleteRating = () => async (req, res) => {
+  try {
+    if ([ADMIN, MODERATOR, SUPER_ADMIN].includes(req.role)) {
+      const rating = await Rating.delete({ where: { id: req.params.id } });
+      return res.status(200).send(rating);
+    }
+
+    const rating = await Rating.findUnique({ where: { id: req.params.id } });
+    if (rating.userId !== req.id) return res.status(401).send('Invalid request');
+    await Rating.delete({ where: { id: req.params.id } });
+    res.status(200).send(rating);
+  } catch (error) {
+    res.status(400).send('something wrong');
+    console.log(error);
+  }
+};
