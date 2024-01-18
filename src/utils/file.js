@@ -25,7 +25,7 @@ export const fileUp = async (file) => {
     if (!setting.media.extensions.includes(ext)) throw new Error('Invalid file extension');
 
     // making unique file path
-    const fileName = (Date.now() * Math.random()) + file.name;
+    const fileName = `${Date.now() * Math.random()}.${ext}`;
     const filePath = path.join(fileDir, fileName);
     if (fs.existsSync(filePath)) throw new Error('Invalid file name');
 
