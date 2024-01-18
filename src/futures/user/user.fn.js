@@ -128,7 +128,10 @@ export const updateUser = () => async (req, res) => {
 
     //  updating user
     if ((req.body.role === USER) || (req.role === userRole.SUPER_ADMIN && Object.keys(userRole).includes(existsUser.role)) || (req.role === ADMIN && [USER, MODERATOR].includes(existsUser.role)) || (req.role === MODERATOR && [USER].includes(existsUser.role))) {
-      if (req.files?.avatar) req.body.avatar = await fileUp(req.files.avatar);
+      if (req.files?.avatar) {
+        req.body.avatar = await fileUp(req.files.avatar);
+        deleteUploadFile(existsUser.avatar.uri);
+      }
       const user = await User.update({ where: { id: req.params.id }, data: req.body });
 
       return res.status(200).send(user);
