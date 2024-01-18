@@ -3,6 +3,8 @@ import cors from 'cors';
 import http from 'http';
 import morgan from 'morgan';
 import { parse } from 'express-form-data';
+import path from 'path';
+import fs from 'fs';
 import settings from './setting';
 import routes from './futures/index';
 import { socketStart } from './config/socket';
@@ -31,8 +33,20 @@ export default function App() {
   const corsOptions = { origin: settings.origin, credentials: true, optionSuccessStatus: 200 };
   app.use(cors(corsOptions));
 
+  // handle static file build file handle and crate client folder
+  const clientPath = path.join(path.resolve(), 'client');
+  if (!fs.existsSync(clientPath)) fs.mkdirSync(clientPath);
+  app.use(express.static(clientPath));
+
+  // create folder for media
+  const mediaFilePath = path.join(path.resolve(), settings.media.dir);
+  if (!fs.existsSync(mediaFilePath)) fs.mkdirSync(mediaFilePath);
+
+  // send clint file to frontend
+  app.get('/', (req, res) => { res.sendFile(path.join(clientPath, 'index.html')); });
+
   routes.forEach((fn) => app.use('/api/v-1', fn(io)));
-  app.get('/', (_req, res) => res.send({ message: 'server is ok' }));
+  app.get('/api', (_req, res) => res.send({ message: 'server is ok' }));
   // app.use((req, res, next) => res.send({ message: "bad url" }));
   // app.use((err, req, res, next) => res.send({ message: "other error" }));
   server.listen(port, () => console.log(`app listening on port ${port}!`));

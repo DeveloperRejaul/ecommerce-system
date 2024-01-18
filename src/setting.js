@@ -1,3 +1,6 @@
+require('dotenv').config();
+
 export default {
-  origin: ['*', 'http://localhost:8081', 'http://localhost:4000', 'exp://192.168.1.101:8081'],
+  origin: process.env.ORIGIN.split(','),
+  media: { dir: 'src/uploads', extensions: ['jpg', 'png', 'jpeg', 'mp3', 'mp4', 'mkv'] },
 };

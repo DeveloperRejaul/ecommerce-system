@@ -5,7 +5,7 @@ import CryptoJS from 'crypto-js';
 import { sendMail } from '../../config/mailConfig';
 import { decodeAuthToken } from '../../utils/decodeAuthToken';
 import { userRole } from '../../constants/constants';
-import { deleteUploadFile } from '../../utils/file';
+import { deleteUploadFile, fileUp } from '../../utils/file';
 import prisma from '../../../prisma';
 
 const { user: User } = prisma;
@@ -23,16 +23,12 @@ const createUserSchema = Joi.object().keys({
   password: Joi.string().min(6).max(15).required(),
   address: Joi.object().keys({ street: Joi.string(), city: Joi.string(), state: Joi.string(), zip: Joi.string() }),
   role: Joi.string().uppercase().valid(ADMIN, MODERATOR, SUPER_ADMIN, USER),
-  avatar: Joi.object().keys({ name: Joi.string(), uri: Joi.string() }),
   bookmark: Joi.array().items(Joi.string().id().required()),
 });
 
 export const createUser = () => async (req, res) => {
   try {
     req.body = JSON.parse(req.body.data || '{}');
-    const { fieldname, filename } = req.file || {};
-    const avatar = { name: fieldname, uri: filename };
-    req.body.avatar = avatar;
 
     // clean without  fields objects property
     const fields = Object.keys(createUserSchema.describe().keys);
@@ -40,37 +36,27 @@ export const createUser = () => async (req, res) => {
 
     // check all filed data type
     const { error } = createUserSchema.validate(req.body);
-    if (error) {
-      if (req.file)deleteUploadFile(req.file.filename);
-      return res.status(202).send('Invalid request');
-    }
+    if (error) return res.status(202).send('Invalid request');
 
     // check mail unique
     if (req.body.email) {
       req.body.email = req.body.email.toLowerCase();
       const existUser = await User.findUnique({ where: { email: req.body.email } });
-      if (existUser) {
-        if (req.file)deleteUploadFile(req.file.filename);
-        return res.status(400).send('Email already exists');
-      }
+      if (existUser) res.status(400).send('Email already exists');
     }
 
     // bcrypt user password
     req.body.password = await bcrypt.hash(req.body.password, 10);
 
     // creating user
-    if (
-      (req.body.role === USER) || (req.role === userRole.SUPER_ADMIN && Object.keys(userRole).includes(req.body.role)) || (req.role === ADMIN && [USER, MODERATOR].includes(req.body.role)) || (req.role === MODERATOR && [USER].includes(req.body.role))) {
+    if ((req.body.role === USER) || (req.role === userRole.SUPER_ADMIN && Object.keys(userRole).includes(req.body.role)) || (req.role === ADMIN && [USER, MODERATOR].includes(req.body.role)) || (req.role === MODERATOR && [USER].includes(req.body.role))) {
+      if (req.files?.avatar) req.body.avatar = await fileUp(req.files.avatar);
       const user = await User.create({ data: req.body });
       return res.status(200).send(user);
     }
 
-    if (req.file)deleteUploadFile(req.file.filename);
     res.status(401).send('Unauthenticated request');
   } catch (err) {
-    console.log(err);
-    if (req.file) deleteUploadFile(req.file.filename);
-    if (err.code === 'P2002') return res.status(203).send('Email Already exists ');
     res.status(500).send('soothing wrong');
   }
 };
@@ -117,19 +103,13 @@ const updateUserSchema = Joi.object().keys({
   name: Joi.string().min(4).max(30),
   email: Joi.string().email(),
   password: Joi.string().min(6).max(15),
-  address: Joi.object().keys({
-    street: Joi.string(), city: Joi.string(), state: Joi.string(), zip: Joi.string(),
-  }),
-  avatar: Joi.object().keys({ name: Joi.string(), uri: Joi.string() }),
+  address: Joi.object().keys({ street: Joi.string(), city: Joi.string(), state: Joi.string(), zip: Joi.string() }),
   bookmark: Joi.array().items(Joi.string().id().required()),
   role: Joi.string().uppercase().valid(ADMIN, MODERATOR, SUPER_ADMIN, USER),
 });
 export const updateUser = () => async (req, res) => {
   try {
     req.body = JSON.parse(req.body.data || '{}');
-    const { fieldname, filename } = req.file || {};
-    const avatar = { name: fieldname, uri: filename };
-    req.body.avatar = avatar;
 
     // clean without  fields objects property
     const fields = Object.keys(updateUserSchema.describe().keys);
@@ -137,33 +117,25 @@ export const updateUser = () => async (req, res) => {
 
     // check all filed data type
     const { error } = updateUserSchema.validate(req.body);
-    if (error) {
-      if (req.file) deleteUploadFile(req.file.filename);
-      return res.status(202).send('Invalid request');
-    }
+    if (error) return res.status(202).send('Invalid request');
 
     // password bcrypt
     if (req.body.password) req.body.password = await bcrypt.hash(req.body.password, 10);
 
     // check user exists
     const existsUser = await User.findUnique({ where: { id: req.params.id } });
-    if (!existsUser) {
-      if (req.file) deleteUploadFile(req.file.filename);
-      return res.status(401).send('user not found');
-    }
+    if (!existsUser) res.status(401).send('user not found');
 
     //  updating user
     if ((req.body.role === USER) || (req.role === userRole.SUPER_ADMIN && Object.keys(userRole).includes(existsUser.role)) || (req.role === ADMIN && [USER, MODERATOR].includes(existsUser.role)) || (req.role === MODERATOR && [USER].includes(existsUser.role))) {
-      deleteUploadFile(existsUser.avatar.uri);
+      if (req.files?.avatar) req.body.avatar = await fileUp(req.files.avatar);
       const user = await User.update({ where: { id: req.params.id }, data: req.body });
+
       return res.status(200).send(user);
     }
-    if (req.file) deleteUploadFile(req.file.filename);
     res.status(401).send('Unauthenticated request');
   } catch (error) {
     console.log(error);
-    if (req.file) deleteUploadFile(req.file.filename);
-    if (error.code === 'P2002') return res.status(203).send('Email Already exists ');
     res.status(500).send('soothing wrong');
   }
 };
@@ -181,8 +153,8 @@ export const deleteUser = () => async (req, res) => {
     if (!existsUser) return res.status(401).send('user not found');
 
     if ((req.body.role === USER) || (req.role === userRole.SUPER_ADMIN && Object.keys(userRole).includes(existsUser.role)) || (req.role === ADMIN && [USER, MODERATOR].includes(existsUser.role)) || (req.role === MODERATOR && [USER].includes(existsUser.role))) {
-      if (req.file) deleteUploadFile(existsUser.avatar.uri);
       const user = await User.delete({ where: { id: req.params.id } });
+      await deleteUploadFile(user.avatar.uri);
       return res.status(200).send(user);
     }
     res.status(200).send('Unauthenticated user');

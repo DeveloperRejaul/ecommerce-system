@@ -15,6 +15,7 @@ const createRatingSchema = Joi.object().keys({
   productId: Joi.string().id().required(),
   rating: Joi.number().required().min(1).max(5),
   text: Joi.string().min(5).max(1000).required(),
+  media: Joi.array().items(Joi.object()),
 });
 
 export const creatingRating = () => async (req, res) => {

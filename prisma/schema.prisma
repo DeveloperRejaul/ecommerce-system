@@ -120,6 +120,7 @@ model Rating {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   rating    Int
   text      String?
+  media     image[]
   userId    String  @db.ObjectId
   productId String  @db.ObjectId
   User      User    @relation(fields: [userId], references: [id])

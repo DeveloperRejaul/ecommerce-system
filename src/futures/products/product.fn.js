@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import prisma from '../../../prisma';
 import { userRole } from '../../constants/constants';
-import { deleteUploadFile } from '../../utils/file';
+import { fileUp } from '../../utils/file';
 
 const { product: Product } = prisma;
 
@@ -29,7 +29,8 @@ const createProductSchema = Joi.object().keys({
 export const createProduct = () => async (req, res) => {
   try {
     req.body = JSON.parse(req.body.data || '{}');
-    if (req.files) req.body.images = req.files.map((img) => ({ name: img.fieldname, uri: img.filename }));
+    if (req.files?.images && !Array.isArray(req.files.images)) req.files.images = [req.files.images];
+    if (req.files?.images) req.body.images = req.files.images.map((img) => ({ name: img.fieldName, uri: img.path }));
 
     // clean without  fields objects property
     const fields = Object.keys(createProductSchema.describe().keys);
@@ -37,19 +38,16 @@ export const createProduct = () => async (req, res) => {
 
     // check all filed data type
     const { error } = createProductSchema.validate(req.body);
-    if (error) {
-      if (req.files) req.files.forEach((img) => deleteUploadFile(img.filename));
-      return res.status(202).send(`Invalid request: ${error.details[0].message}`);
-    }
+    if (error) return res.status(202).send(`Invalid request: ${error.details[0].message}`);
 
     if (sportedUser.includes(req.role)) {
+      if (req.files?.images) req.body.images = await Promise.all(req.files.images.map((img) => fileUp(img)));
       const product = await Product.create({ data: { ...req.body, userId: req.id } });
       return res.status(200).send(product);
     }
-    if (req.files) req.files.forEach((img) => deleteUploadFile(img.filename));
+
     res.status(401).send('Unauthenticated request');
   } catch (err) {
-    if (req.files) req.files.forEach((img) => deleteUploadFile(img.filename));
     res.status(400).send('something wrong');
     console.log(err);
   }
@@ -106,7 +104,8 @@ const updateProductSchema = Joi.object().keys({
 export const updateProduct = () => async (req, res) => {
   try {
     req.body = JSON.parse(req.body.data || '{}');
-    if (req.files) req.body.images = req.files.map((img) => ({ name: img.fieldname, uri: img.filename }));
+    if (req.files?.images && !Array.isArray(req.files.images)) req.files.images = [req.files.images];
+    if (req.files?.images) req.body.images = req.files.images.map((img) => ({ name: img.fieldName, uri: img.path }));
 
     // clean without  fields objects property
     const fields = Object.keys(updateProductSchema.describe().keys);
@@ -114,17 +113,13 @@ export const updateProduct = () => async (req, res) => {
 
     // check all filed data type
     const { error } = updateProductSchema.validate(req.body);
-
-    if (error) {
-      if (req.files) req.files.forEach((img) => deleteUploadFile(img.filename));
-      return res.status(202).send(`Invalid request: ${error.details[0].message}`);
-    }
+    if (error) return res.status(202).send(`Invalid request: ${error.details[0].message}`);
 
     if (sportedUser.includes(req.role)) {
+      if (req.files?.images) req.body.images = await Promise.all(req.files.images.map((img) => fileUp(img)));
       const product = await Product.update({ data: req.body, where: { id: req.params.id } });
       return res.status(200).send(product);
     }
-    if (req.files) req.files.forEach((img) => deleteUploadFile(img.filename));
     res.status(401).send('Unauthenticated request');
   } catch (err) {
     res.status(400).send('something wrong');
