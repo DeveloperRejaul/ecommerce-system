@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import setting from '../setting';
+import { random } from './random';
 
 /**
  * @description this function create for deleting file from uploads directory
@@ -25,7 +26,7 @@ export const fileUp = async (file) => {
     if (!setting.media.extensions.includes(ext)) throw new Error('Invalid file extension');
 
     // making unique file path
-    const fileName = `${Date.now()}.${ext}`;
+    const fileName = `${random()}.${ext}`;
     const filePath = path.join(fileDir, fileName);
     if (fs.existsSync(filePath)) throw new Error('Invalid file name');
 

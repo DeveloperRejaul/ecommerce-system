@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import prisma from '../../../prisma';
 import { userRole } from '../../constants/constants';
-import { fileUp } from '../../utils/file';
+import { deleteUploadFile, fileUp } from '../../utils/file';
 
 const { product: Product } = prisma;
 
@@ -134,6 +134,7 @@ export const updateProduct = () => async (req, res) => {
 export const deleteProduct = () => async (req, res) => {
   try {
     const product = await Product.delete({ where: { id: req.params.id } });
+    deleteUploadFile(product.images.uri);
     if (!product) return res.status(400).send('Product not found');
     res.status(200).send(product);
   } catch (err) {

@@ -1,6 +1,7 @@
 import Joi from 'joi';
 import prisma from '../../../prisma';
 import { userRole } from '../../constants/constants';
+import { deleteUploadFile, fileUp } from '../../utils/file';
 
 const { product: Product, rating: Rating } = prisma;
 const { ADMIN, MODERATOR, SUPER_ADMIN } = userRole;
@@ -15,11 +16,12 @@ const createRatingSchema = Joi.object().keys({
   productId: Joi.string().id().required(),
   rating: Joi.number().required().min(1).max(5),
   text: Joi.string().min(5).max(1000).required(),
-  media: Joi.array().items(Joi.object()),
 });
 
 export const creatingRating = () => async (req, res) => {
   try {
+    req.body = JSON.parse(req.body.data || '{}');
+
     // clean without  fields objects property
     const fields = Object.keys(createRatingSchema.describe().keys);
     Object.keys(req.body).forEach((k) => { if (!fields.includes(k)) delete req.body[k]; });
@@ -28,11 +30,21 @@ export const creatingRating = () => async (req, res) => {
     const { error } = createRatingSchema.validate(req.body);
     if (error) return res.status(400).send(`Invalid Request: ${error.details[0].message}`);
 
-    // create rating
+    // converting object value to array
+    if (req.files?.media && !Array.isArray(req.files?.media)) req.files.media = [req.files.media];
+
+    // upload file
+    if (req.files?.media) req.body.media = await Promise.all(req.files.media.map((file) => fileUp(file)));
+
+    // save data to database
     const rating = await Rating.create({ data: { ...req.body, userId: req.id } });
 
     // find all rating with product id
     const ratings = await Rating.findMany({ where: { productId: req.body.productId } });
+
+    // check product exists in database
+    const productExists = await Product.findUnique({ where: { id: req.body.productId } });
+    if (!productExists) return res.status(401).send('Product not found');
 
     // update product rating
     if (ratings.length <= 0) {
@@ -82,6 +94,8 @@ export const updateRating = () => async (req, res) => {
     // check user role valid access permissions
     if (![ADMIN, MODERATOR, SUPER_ADMIN].includes(req.role)) return res.status(400).send('Invalid request ');
 
+    req.body = JSON.parse(req.body.data || '{}');
+
     // clean without  fields objects property
     const fields = Object.keys(updateRatingSchema.describe().keys);
     Object.keys(req.body).forEach((k) => { if (!fields.includes(k)) delete req.body[k]; });
@@ -89,6 +103,17 @@ export const updateRating = () => async (req, res) => {
     // check valid input
     const { error } = updateRatingSchema.validate(req.body);
     if (error) return res.status(400).send(`Invalid Request: ${error.details[0].message}`);
+
+    // delete prevues files
+    const ratingExists = await Rating.findUnique({ where: { id: req.params.id } });
+    if (!ratingExists) return res.status(404).send('Rating Not Found');
+    await Promise.all(ratingExists.media.map((file) => deleteUploadFile(file.uri)));
+
+    // converting object value to array
+    if (req.files?.media && !Array.isArray(req.files?.media)) req.files.media = [req.files.media];
+
+    // upload file
+    if (req.files?.media) req.body.media = await Promise.all(req.files.media.map((file) => fileUp(file)));
 
     // update rating
     const rating = await Rating.update({ where: { id: req.params.id }, data: req.body });
@@ -113,12 +138,14 @@ export const deleteRating = () => async (req, res) => {
   try {
     if ([ADMIN, MODERATOR, SUPER_ADMIN].includes(req.role)) {
       const rating = await Rating.delete({ where: { id: req.params.id } });
+      if (rating.media) await Promise.all(rating.media.map((file) => deleteUploadFile(file.uri)));
       return res.status(200).send(rating);
     }
 
     const rating = await Rating.findUnique({ where: { id: req.params.id } });
     if (rating.userId !== req.id) return res.status(401).send('Invalid request');
     await Rating.delete({ where: { id: req.params.id } });
+    if (rating.media) await Promise.all(rating.media.map((file) => deleteUploadFile(file.uri)));
     res.status(200).send(rating);
   } catch (error) {
     res.status(400).send('something wrong');

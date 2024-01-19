@@ -27,5 +27,6 @@ module.exports = {
     'object-curly-newline': 'off',
     'consistent-return': 'off',
     'newline-per-chained-call': 'off',
+    'no-plusplus': 'off',
   },
 };
