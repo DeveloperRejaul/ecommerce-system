@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common';
-import { ShopController } from './controller';
-import { ShopService } from './service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ShopSchema, Shop } from './schema';
 import { User, UserSchema } from '../user/schema';
 import { AuthController } from '../auth/controller';
 import { AuthService } from '../auth/service';
+import { Rating, RatingSchema } from './schema';
+import { RatingController } from './controller';
+import { RatingService } from './service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Shop.name, schema: ShopSchema }]),
+    MongooseModule.forFeature([{ name: Rating.name, schema: RatingSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
-  controllers: [ShopController, AuthController],
-  providers: [ShopService, AuthService],
+  controllers: [RatingController, AuthController],
+  providers: [RatingService, AuthService],
 })
-export class ShopModule { }
+export class RatingModule { }

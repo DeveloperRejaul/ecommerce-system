@@ -2,18 +2,15 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Shop } from './schema';
-import { CreateShopDto } from './dto';
+import { CreateShopDto, UpdateShopDto } from './dto';
 import { AuthBody, IFileType } from 'src/types/types';
 import { UserRole } from '../user/schema';
 import { saveFile } from 'src/utils/file';
-import { UserService } from '../user/service';
-
 
 @Injectable()
 export class ShopService {
   constructor(
-    @InjectModel(Shop.name) private model: Model<Shop>,
-    private userService: UserService
+    @InjectModel(Shop.name) private model: Model<Shop>
   ) { }
 
   /**
@@ -33,24 +30,38 @@ export class ShopService {
  * @description this function using for delete shop
  * @returns  shop object
  */
-  async delete(id: string, role: string, userId: string) {
+  async delete(id: string, role: string, shopId: string) {
     if (role === UserRole.OWNER) return await this.model.findByIdAndDelete(id);
     if (role === UserRole.SUPPER_ADMIN) {
-      const user = await this.userService.findById(userId);
-      if (user.shopId.toString() === id) {
-        return await this.model.findByIdAndDelete(id);
-      }
+      if (shopId === id) return await this.model.findByIdAndDelete(id);
     }
     throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
   }
 
 
-  async update() { }
+  async update(id: string, role: string, shopId: string, body: UpdateShopDto, file: IFileType) {
+    if (role === UserRole.OWNER) {
+      if (file) body['avatar'] = await saveFile(file);
+      return await this.model.findByIdAndUpdate(id, body, { new: true });
+    }
+    if (role === UserRole.SUPPER_ADMIN) {
+      if (shopId === id) {
+        if (file) body['avatar'] = await saveFile(file);
+        return await this.model.findByIdAndUpdate(id, body, { new: true });
+      }
+    }
+    throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+  }
 
-  async getAll() { }
+  async getAll(role: string) {
+    if (role === UserRole.OWNER) {
+      return await this.model.find();
+    }
+    throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+  }
 
-  async getByEmail() { }
-
-  async getById() { }
+  async getById(id: string) {
+    return await this.model.findById({ _id: id });
+  }
 
 }

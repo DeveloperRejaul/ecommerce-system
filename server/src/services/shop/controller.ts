@@ -5,15 +5,17 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Post,
+  Put,
   Request,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
-import { CreateShopDto } from './dto';
+import { CreateShopDto, UpdateShopDto } from './dto';
 
 
 @Controller('api/v-1/shop')
@@ -28,10 +30,28 @@ export class ShopController {
     return this.service.create(body, file, { id, email, role });
   }
 
-  @Delete(':id')
+
+  @Get()
   @UseGuards(AuthGuard)
-  delete(@Param() param, @Request() { role, id }) {
-    return this.service.delete(param.id, role, id);
+  getAll(@Request() { role }) {
+    return this.service.getAll(role);
   }
 
+  @Get(':id')
+  getById(@Param() param,) {
+    return this.service.getById(param.id);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  delete(@Param() param, @Request() { role, shopId }) {
+    return this.service.delete(param.id, role, shopId);
+  }
+
+  @Put(':id')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('avatar'))
+  update(@Param() param, @Request() { role, shopId }, @Body() body: UpdateShopDto, @UploadedFile() file) {
+    return this.service.update(param.id, role, shopId, body, file);
+  }
 }
