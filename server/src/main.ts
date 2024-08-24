@@ -11,6 +11,10 @@ const requireEnv = [
   'PORT',
   'JWT_SECRET',
   'ORIGIN',
+  'EMAIL_HOST',
+  'POST',
+  'EMAIL_USERNAME',
+  'EMAIL_PASSWORD',
 ];
 const allEnv = new Set(Object.keys(process.env));
 

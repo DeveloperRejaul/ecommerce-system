@@ -1,4 +1,4 @@
-import { Request } from "express";
+import { Request } from 'express';
 
 export interface IFileType {
   fieldname: string;
@@ -18,4 +18,13 @@ export interface AuthBody {
   email: string;
   id: string;
   role: string;
+  shopId?: string
+}
+
+export interface IMailBody {
+  from: string;
+  to: string;
+  subject: string;
+  text: string;
+  html?: string;
 }

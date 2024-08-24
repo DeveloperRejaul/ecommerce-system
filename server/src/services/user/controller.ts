@@ -21,7 +21,7 @@ import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('api/v-1/user')
 export class UserController {
-  constructor(private readonly service: UserService) {}
+  constructor(private readonly service: UserService) { }
 
 
 
@@ -52,12 +52,12 @@ export class UserController {
 
   @Get()
   @UseGuards(AuthGuard)
-  getUsers(@Request() {role, shopId}) {
+  getUsers(@Request() { role, shopId }) {
     return this.service.getAll(role, shopId);
   }
 
   @Get(':id')
-  getUser(@Param() { id }) { 
+  getUser(@Param() { id }) {
     return this.service.findById(id);
   }
 
@@ -65,15 +65,15 @@ export class UserController {
   @UseInterceptors(FileInterceptor('avatar'))
   @UsePipes(new JoiValidationPipe(updateUserSchema))
   @UseGuards(AuthGuard)
-  update(@Param() { id }, @Body() body, @UploadedFile() file) { 
-    return this.service.update(id, body, file);
+  update(@Param() param, @Body() body, @UploadedFile() file, @Request() { role, email, id, shopId }) {
+    return this.service.update(param.id, body, file, { role, email, id, shopId });
   }
 
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  delete(@Param() { id }) { 
-    return this.service.delete(id);
+  delete(@Param() param, @Request() { role, email, id, shopId }) {
+    return this.service.delete(param.id, { role, email, id, shopId });
   }
 
 }

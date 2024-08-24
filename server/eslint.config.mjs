@@ -12,7 +12,7 @@ export default [
     rules: {
       'no-console': 'warn',
       'eqeqeq': 'error',
-      'curly': 'error',
+      'curly': 'off',
       'quotes': ['error', 'single'],
       'semi': ['error', 'always'],
     },
