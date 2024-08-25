@@ -1,6 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, HydratedDocument, Types } from 'mongoose';
 
+
+type SizeType = {
+  sm?: number;
+  md?: number;
+  lg?: number;
+  xl?: number;
+  '2xl'?: number;
+  '3xl'?: number;
+};
+
+
 export type ProductDocument = HydratedDocument<Product>;
 
 @Schema({ timestamps: true })
@@ -12,7 +23,7 @@ export class Product extends Document {
   title: string;
 
   @Prop({ type: [String] })
-  image: string[];
+  images: string[];
 
   @Prop({ type: Number, required: true })
   buyPrice: number;
@@ -20,8 +31,8 @@ export class Product extends Document {
   @Prop({ type: Number, required: true })
   sellPrice: number;
 
-  @Prop({ type: String, enum: ['sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl'], required: true })
-  size: string;
+  @Prop({ type: Map, of: Number, enum: ['sm', 'md', 'lg', 'xl', '2xl', '3xl'], required: true, default: {} })
+  size: SizeType;
 
   @Prop({ type: String, required: true })
   description: string;
@@ -29,7 +40,7 @@ export class Product extends Document {
   @Prop({ type: Number, required: true })
   quantity: number;
 
-  @Prop({ type: Number, required: true })
+  @Prop({ type: Number })
   rating: number;
 
   @Prop({ type: Types.ObjectId, required: true, ref: 'category' })
@@ -40,6 +51,11 @@ export class Product extends Document {
 
   @Prop({ type: [Types.ObjectId], ref: 'user' }) // this field for buyers
   userId: Types.ObjectId[];
+
+  @Prop({ type: Types.ObjectId, ref: 'shop' }) // this field for buyers
+  shopId: Types.ObjectId;
+
+
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

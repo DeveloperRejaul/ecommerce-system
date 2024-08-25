@@ -1,5 +1,9 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Request, UploadedFiles, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { ProductService } from './service';
+import { AuthGuard } from '../auth/auth.guard';
+import { JoiValidationPipe } from 'src/validation.pipe';
+import { createProductSchema, updateProductSchema } from './dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 
 @Controller('api/v-1/product')
@@ -7,26 +11,41 @@ export class ProductController {
   constructor(private readonly service: ProductService) { }
 
 
-  creatingProduct() {
-    return this.service.creatingProduct();
+  @Post()
+  @UseGuards(AuthGuard)
+  @UsePipes(new JoiValidationPipe(createProductSchema))
+  @UseInterceptors(FilesInterceptor('images'))
+  creatingProduct(@Request() req, @Body() body, @UploadedFiles() files) {
+    return this.service.creatingProduct(req, body, files);
   };
 
-
-  deleteProduct() {
-    return this.service.deleteProduct();
+  @Get()
+  @UseGuards(AuthGuard)
+  getAllProduct(@Request() req) {
+    return this.service.getAllProduct(req);
   };
 
-
-  getAllProduct() {
-    return this.service.getAllProduct();
+  @Get('shop/:id')
+  getSingleProduct(@Param() param) {
+    return this.service.getProductByShopId(param.id);
   };
 
-
-  updateProduct() {
-    return this.service.updateProduct();
+  @Get(':id')
+  getById(@Param() param) {
+    return this.service.getProductById(param.id);
   }
 
-  getSingleProduct() {
-    return this.service.getSingleProduct();
+  @Put(':id')
+  @UseGuards(AuthGuard)
+  @UsePipes(new JoiValidationPipe(updateProductSchema))
+  @UseInterceptors(FilesInterceptor('images'))
+  updateProduct(@Param() param, @Request() req, @Body() body, @UploadedFiles() files) {
+    return this.service.updateProduct(param.id, req, body, files);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  deleteProduct(@Request() req, @Param() param) {
+    return this.service.deleteProduct(param.id, req);
   };
 }

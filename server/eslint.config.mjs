@@ -10,7 +10,6 @@ export default [
       globals: globals.browser,
     },
     rules: {
-      'no-console': 'warn',
       'eqeqeq': 'error',
       'curly': 'off',
       'quotes': ['error', 'single'],
