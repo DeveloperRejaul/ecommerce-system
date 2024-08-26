@@ -1,17 +1,40 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsEmail, IsNotEmpty, MinLength, } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateOrderDto {
+  @IsNumber()
   @IsNotEmpty()
-  @MinLength(5)
-  name: string;
+  quantity: number;
 
-  @IsEmail()
-  email: string;
-
+  @IsString()
   @IsNotEmpty()
-  @MinLength(5)
   address: string;
+
+  @IsString()
+  @IsNotEmpty()
+  phone: string;
+
+  @IsString()
+  notes: string;
+
+
+  @IsString()
+  @IsNotEmpty()
+  size: string;
+
+
+  @IsNotEmpty()
+  @IsString()
+  userId: string;
+
+
+  @IsNotEmpty()
+  @IsString()
+  productId: string;
+
+  shopId: string;
+  coupon?: string;
+  status?: string;
 }
 
 

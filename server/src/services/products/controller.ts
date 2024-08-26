@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Request, UploadedFiles, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { ProductService } from './service';
 import { AuthGuard } from '../auth/auth.guard';
-import { JoiValidationPipe } from 'src/validation.pipe';
-import { createProductSchema, updateProductSchema } from './dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { createProductSchema, updateProductSchema } from './dto';
+import { JoiValidationPipe } from 'src/validation.pipe';
 
 
 @Controller('api/v-1/product')

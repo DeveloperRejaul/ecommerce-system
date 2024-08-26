@@ -10,9 +10,9 @@ export const createProductSchema = Joi.object().keys({
   buyPrice: Joi.number().min(0).required(),
   sellPrice: Joi.number().min(0).greater(Joi.ref('buyPrice')).required(),
   quantity: Joi.number().min(0).required(),
-  size: Joi.object().keys({ sm: Joi.number(), md: Joi.number(), lg: Joi.number(), xl: Joi.number(), '2xl': Joi.number(), '3xl': Joi.number() }).required()
+  size: Joi.object().keys({ sm: Joi.number(), md: Joi.number(), lg: Joi.number(), xl: Joi.number(), '2xl': Joi.number(), '3xl': Joi.number(), '4xl': Joi.number() }).required()
     .custom((value, helpers) => {
-      const totalSize = (value.sm || 0) + (value.md || 0) + (value.lg || 0) + (value.xl || 0) + (value['2xl'] || 0) + (value['3xl'] || 0);
+      const totalSize = (value.sm || 0) + (value.md || 0) + (value.lg || 0) + (value.xl || 0) + (value['2xl'] || 0) + (value['3xl'] || 0) + (value['4xl'] || 0);
       if (totalSize !== helpers.state.ancestors[0].quantity) {
         //@ts-ignore
         return helpers.message(`The total of sizes of number must equal the quantity ${helpers.state.ancestors[0].quantity}`);
@@ -20,7 +20,7 @@ export const createProductSchema = Joi.object().keys({
       return value;
     }, 'Total size validation'),
   discount: Joi.number().less(Joi.ref('sellPrice')),
-  couponId: Joi.array().items(Joi.string().id()),
+  couponId: Joi.string().id(),
   shopId: Joi.string().id().required()
 });
 
@@ -32,9 +32,9 @@ export const updateProductSchema = Joi.object().keys({
   buyPrice: Joi.number().min(0),
   sellPrice: Joi.number().min(0).greater(Joi.ref('buyPrice')),
   discount: Joi.number().less(Joi.ref('sellPrice')),
-  size: Joi.object().keys({ sm: Joi.number(), md: Joi.number(), lg: Joi.number(), xl: Joi.number(), '2xl': Joi.number(), '3xl': Joi.number() })
+  size: Joi.object().keys({ sm: Joi.number(), md: Joi.number(), lg: Joi.number(), xl: Joi.number(), '2xl': Joi.number(), '3xl': Joi.number(), '4xl': Joi.number() })
     .custom((value, helpers) => {
-      const totalSize = (value.sm || 0) + (value.md || 0) + (value.lg || 0) + (value.xl || 0) + (value['2xl'] || 0) + (value['3xl'] || 0);
+      const totalSize = (value.sm || 0) + (value.md || 0) + (value.lg || 0) + (value.xl || 0) + (value['2xl'] || 0) + (value['3xl'] || 0) + (value['4xl'] || 0);
       if (totalSize !== helpers.state.ancestors[0].quantity) {
         //@ts-ignore
         return helpers.message(`The total of sizes of number must equal the quantity ${helpers.state.ancestors[0].quantity}`);
@@ -44,6 +44,6 @@ export const updateProductSchema = Joi.object().keys({
   description: Joi.string().min(50).max(1000),
   quantity: Joi.number().min(0),
   categoryId: Joi.string().id(),
-  couponId: Joi.array().items(Joi.string().id()),
-  shopId: Joi.string().id().required()
+  couponId: Joi.string().id(),
+  shopId: Joi.string().id()
 });

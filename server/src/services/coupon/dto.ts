@@ -1,5 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { IsEnum, IsNotEmpty, IsNumber, MinLength, } from 'class-validator';
+import { IsLessThan100ForPercent } from 'src/utils/validator';
 
 
 export class CreateCouponDto {
@@ -14,6 +15,7 @@ export class CreateCouponDto {
 
   @IsNotEmpty()
   @IsNumber()
+  @IsLessThan100ForPercent()
   value: number;
 
   @IsNotEmpty()
