@@ -19,6 +19,7 @@ export class ProductService {
     const { role, shopId } = auth;
 
     if (body?.couponId) body.couponId = [body.couponId];
+    if (body?.color) body.color = JSON.parse(body.color);
 
     if (role === UserRole.OWNER) {
       if (files) {
@@ -59,7 +60,7 @@ export class ProductService {
       }
       return await this.model.findByIdAndUpdate(id, {
         $set: { body },
-        $push: { couponId: body.couponId, userId: body?.userId }
+        $push: { couponId: body.couponId, userId: body?.userId, color: body?.color }
       }, { new: true });
     }
 
@@ -72,7 +73,7 @@ export class ProductService {
         }
         return await this.model.findByIdAndUpdate(id, {
           $set: { body },
-          $push: { couponId: body.couponId, userId: body?.userId }
+          $push: { couponId: body.couponId, userId: body?.userId, color: body?.color }
         }, { new: true });
       }
     }

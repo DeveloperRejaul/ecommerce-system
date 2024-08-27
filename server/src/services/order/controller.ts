@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Param, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { OrderService } from './service';
 import { AuthGuard } from '../auth/auth.guard';
-import { CreateOrderDto } from './dto';
+import { CreateOrderDto, UpdateOrderDto } from './dto';
 
 
 @Controller('api/v-1/order')
@@ -22,31 +22,27 @@ export class OrderController {
     return this.service.deleteOrder(param.id, req);
   };
 
-
-  getOrder() {
-    return this.service.getOrder();
+  @Get()
+  @UseGuards(AuthGuard)
+  getAllOrder(@Request() req) {
+    return this.service.getAllOrder(req);
   };
 
-
-
-  getAllOrder() {
-    return this.service.getAllOrder();
+  @Get('/shop/:shopId')
+  @UseGuards(AuthGuard)
+  getOrderByShopId(@Param() param) {
+    return this.service.getOrderByShopId(param.shopId);
   };
 
-
-  getSingleOrder() {
-    return this.service.getSingleOrder();
+  @Get(':id')
+  @UseGuards(AuthGuard)
+  getOrderById(@Param() param) {
+    return this.service.getOrderById(param.id);
   };
 
-
-  updateOrder() {
-    // return this.service.createOrder();
+  @Put(':id')
+  @UseGuards(AuthGuard)
+  updateOrder(@Param() param, @Request() req, @Body() body: UpdateOrderDto) {
+    return this.service.updateOrder(param.id, req, body);
   };
-
-
-  confirmOrder() {
-    // return this.service.createOrder();
-  };
-
-
 }

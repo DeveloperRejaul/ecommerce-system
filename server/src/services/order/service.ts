@@ -3,8 +3,8 @@ import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order } from './schema';
 import { AuthBody } from 'src/types/types';
-import { CreateOrderDto } from './dto';
-import { UserRole } from '../user/schema';
+import { CreateOrderDto, UpdateOrderDto } from './dto';
+import { User, UserRole } from '../user/schema';
 import { roleAvailable } from 'src/utils/role';
 import { Product } from '../products/schema';
 import { Coupon } from '../coupon/schema';
@@ -16,7 +16,8 @@ export class OrderService {
   constructor(
     @InjectModel(Order.name) private model: Model<Order>,
     @InjectModel(Product.name) private productModel: Model<Product>,
-    @InjectModel(Coupon.name) private couponModel: Model<Coupon>
+    @InjectModel(Coupon.name) private couponModel: Model<Coupon>,
+    @InjectModel(User.name) private userModel: Model<User>
   ) { }
 
   async createOrder(body: CreateOrderDto, auth: AuthBody) {
@@ -30,6 +31,9 @@ export class OrderService {
     // handle product price 
     const parPrice = product.sellPrice;
     let mainPrice = parPrice * quantity;
+
+    // handle product color 
+    if (!product.color.includes(body.color)) throw new HttpException('Color Not  available at the moment', HttpStatus.NO_CONTENT);;
 
     // handle size
     const sizes = JSON.parse(JSON.stringify(product.size));
@@ -88,9 +92,35 @@ export class OrderService {
   };
 
 
-  async getOrder() { };
-  async getAllOrder() { };
-  async getSingleOrder() { };
-  async updateOrder() { };
-  async confirmOrder() { };
+  async getAllOrder(auth: AuthBody) {
+    const { role, shopId } = auth;
+    if (role === UserRole.OWNER) {
+      return await this.model.find();
+    }
+    if (roleAvailable([ADMIN, MODERATOR, SUPPER_ADMIN,], role)) {
+      return await this.model.find({ shopId });
+    }
+  };
+
+  async getOrderByShopId(shopId: string) {
+    return await this.model.find({ shopId });
+  };
+
+
+  async getOrderById(id: string) {
+    return await this.model.findById({ _id: id });
+  };
+
+  async updateOrder(id: string, auth: AuthBody, body: UpdateOrderDto) {
+    const { shopId, id: userId, role } = auth;
+    if (role === UserRole.OWNER) {
+      return await this.model.findByIdAndUpdate(id, body, { new: true });
+    }
+
+    const user = await this.userModel.findById({ _id: userId });
+    if (roleAvailable([ADMIN, MODERATOR, SUPPER_ADMIN], role) && user.shopId.toString() === shopId) {
+      return await this.model.findByIdAndUpdate(id, body, { new: true });
+    }
+    throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+  };
 }

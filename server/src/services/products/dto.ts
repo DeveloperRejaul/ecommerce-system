@@ -19,6 +19,7 @@ export const createProductSchema = Joi.object().keys({
       }
       return value;
     }, 'Total size validation'),
+  color: Joi.string().required(),
   discount: Joi.number().less(Joi.ref('sellPrice')),
   couponId: Joi.string().id(),
   shopId: Joi.string().id().required()
@@ -43,6 +44,7 @@ export const updateProductSchema = Joi.object().keys({
     }, 'Total size validation'),
   description: Joi.string().min(50).max(1000),
   quantity: Joi.number().min(0),
+  color: Joi.string(),
   categoryId: Joi.string().id(),
   couponId: Joi.string().id(),
   shopId: Joi.string().id()

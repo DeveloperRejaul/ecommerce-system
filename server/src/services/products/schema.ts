@@ -11,9 +11,7 @@ type SizeType = {
   '3xl'?: number;
 };
 
-
 export type ProductDocument = HydratedDocument<Product>;
-
 @Schema({ timestamps: true })
 export class Product extends Document {
   @Prop({ type: Types.ObjectId, auto: true })
@@ -33,6 +31,9 @@ export class Product extends Document {
 
   @Prop({ type: Map, of: Number, enum: ['sm', 'md', 'lg', 'xl', '2xl', '3xl'], required: true, default: {} })
   size: SizeType;
+
+  @Prop({ type: [String], required: true, default: [] })
+  color: string[];
 
   @Prop({ type: String, required: true })
   description: string;

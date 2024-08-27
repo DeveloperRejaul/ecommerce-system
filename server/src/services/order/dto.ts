@@ -22,11 +22,13 @@ export class CreateOrderDto {
   @IsNotEmpty()
   size: string;
 
+  @IsString()
+  @IsNotEmpty()
+  color: string;
 
   @IsNotEmpty()
   @IsString()
   userId: string;
-
 
   @IsNotEmpty()
   @IsString()

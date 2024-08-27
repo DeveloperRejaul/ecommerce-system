@@ -29,6 +29,9 @@ export class Order extends Document {
   @Prop({ type: String, enum: ['sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl'], required: true })
   size: string;
 
+  @Prop({ type: String, required: true })
+  color: string;
+
   @Prop({ type: Types.ObjectId, ref: 'coupon' })
   coupon: Types.ObjectId;
 
