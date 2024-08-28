@@ -1,28 +1,34 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { RatingService } from './service';
+import { CreateRatingDto, UpdateRatingDto } from './dto';
+import { AuthGuard } from '../auth/auth.guard';
 
 
 @Controller('api/v-1/rating')
 export class RatingController {
   constructor(private readonly service: RatingService) { }
-  creatingRating() {
-    return this.service.creatingRating();
+
+  @Post()
+  @UseGuards(AuthGuard)
+  creatingRating(@Body() body: CreateRatingDto, @Request() req) {
+    return this.service.creatingRating(body, req);
   };
 
-
-  deleteRating() {
-    return this.service.deleteRating();
+  @Get()
+  @UseGuards(AuthGuard)
+  getAllRating(@Request() req) {
+    return this.service.getAllRating(req);
   };
 
-
-  getAllRating() {
-    return this.service.getAllRating();
-  };
-
-
-  updateRating() {
-    return this.service.updateRating();
+  @Put(':id')
+  @UseGuards(AuthGuard)
+  updateRating(@Param() param, @Request() req, @Body() body: UpdateRatingDto) {
+    return this.service.updateRating(param.id, req, body);
   }
 
-
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  deleteRating(@Param() param, @Request() req) {
+    return this.service.deleteRating(param.id, req);
+  };
 }

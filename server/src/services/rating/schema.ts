@@ -14,14 +14,14 @@ export class Rating extends Document {
   @Prop({ type: String })
   text: string;
 
-  @Prop({ type: [String] })
-  media: string[];
-
   @Prop({ type: Types.ObjectId, required: true })
   productId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, required: true })
   userId: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, required: true })
+  shopId: Types.ObjectId;
 }
 
 export const RatingSchema = SchemaFactory.createForClass(Rating);

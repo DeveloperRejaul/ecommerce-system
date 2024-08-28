@@ -1,17 +1,21 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsEmail, IsNotEmpty, MinLength, } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Min, Max } from 'class-validator';
+
 
 export class CreateRatingDto {
+  @IsNumber()
+  @Max(5)
+  @Min(1)
   @IsNotEmpty()
-  @MinLength(5)
-  name: string;
+  rating: number;
 
-  @IsEmail()
-  email: string;
+  @IsString()
+  @IsNotEmpty()
+  text: string;
 
   @IsNotEmpty()
-  @MinLength(5)
-  address: string;
+  @IsString()
+  productId: string;
 }
 
 

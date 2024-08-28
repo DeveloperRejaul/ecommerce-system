@@ -47,5 +47,6 @@ export const updateProductSchema = Joi.object().keys({
   color: Joi.string(),
   categoryId: Joi.string().id(),
   couponId: Joi.string().id(),
-  shopId: Joi.string().id()
+  shopId: Joi.string().id(),
+  userId: Joi.string().id(),
 });
