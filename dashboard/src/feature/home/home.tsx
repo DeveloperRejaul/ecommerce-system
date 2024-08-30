@@ -1,10 +1,26 @@
-import {Button } from '@/components/ui/button'
+import { LineChart } from '@/components/lineChart';
 
 export default function Home() {
   return (
-    <div className="text-red-500">
-      home
-    <Button> Click Me </Button>
+    <div>
+      <div style={{height:400, width:400}}>
+        <LineChart/>
+      </div>
+      <div style={{ height: 400, width: 400 }}>
+        <LineChart/>
+      </div>
+      <div style={{ height: 400, width: 400 }}>
+        <LineChart/>
+      </div>
+      <div style={{ height: 400, width: 400 }}>
+        <LineChart/>
+      </div>
+      <div style={{ height: 400, width: 400 }}>
+        <LineChart/>
+      </div>
+      <div style={{ height: 400, width: 400 }}>
+        <LineChart/>
+      </div>
     </div>
-  )
+  );
 }
