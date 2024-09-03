@@ -1,21 +1,22 @@
-import { createBrowserRouter } from 'react-router-dom';
-import Login from '../feature/auth/login';
-import Main from './main';
-import Home from '@/feature/home/home';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Main />,
-    children: [
-      {
-        path: '/',
-        element:<Home/>
-      }
-    ]
-  },
-  {
-    path: '/auth',
-    element:<Login/>
-  }
-]);
+import { createBrowserRouter } from 'react-router-dom';
+import { homeCom, paths, rootCom } from '@/constant/route';
+
+
+
+const child = {
+  '/': paths.home.map((pt, i) => ({
+    path: pt,
+    element: homeCom[i]
+  }))
+};
+
+const routes = paths.root.map((pt, i) => ({
+  path: pt,
+  element: rootCom[i],
+  //@ts-ignore
+  children: child[pt]
+}));
+
+export const router = createBrowserRouter(routes);
