@@ -16,6 +16,8 @@ export default [
       'no-console': 'warn',
       'semi': ['error', 'always'],
       'quotes': ['error', 'single'],
+      'react/prop-types': 'off',
+      'react/no-unescaped-entities':'off',
     }
   },
 ];

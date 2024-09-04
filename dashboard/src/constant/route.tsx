@@ -8,11 +8,12 @@ import Product from '@/feature/product/product';
 import Shop from '@/feature/shop/shop';
 import Main from '@/router/main';
 import Login from '@/feature/auth/login';
+import Protected from '@/router/protected';
 
 export const paths = {
-    root: ['/', '/auth'],
+    root: ['/', '/auth/login'],
     home: ['/', '/category', '/order', '/user', '/coupon', '/product', '/shop']
 };
 
-export const rootCom = [<Main />, <Login />];
+export const rootCom = [ <Protected> <Main /> </Protected> , <Login />];
 export const homeCom = [<Home />, <Category />, <Order />, <User />, <Coupon />, <Product />, <Shop />];

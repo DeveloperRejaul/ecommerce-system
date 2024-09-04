@@ -1,25 +1,23 @@
 import { LineChart } from '@/components/lineChart';
+import Box from './box';
+import Sell from './sell';
 
 export default function Home() {
   return (
     <div>
-      <div style={{ height: 400, width: 400 }}>
-        <LineChart />
+
+      {/* Box  */}
+      <div className='mb-3 grid grid-cols-2 gap-4 xl:grid-cols-4'>
+        <Box />
+        <Box />
+        <Box />
+        <Box />
       </div>
-      <div style={{ height: 400, width: 400 }}>
+
+      {/* Chart */}
+      <div className='grid grid-cols-1 gap-4 xl:grid-cols-2'>
         <LineChart />
-      </div>
-      <div style={{ height: 400, width: 400 }}>
-        <LineChart />
-      </div>
-      <div style={{ height: 400, width: 400 }}>
-        <LineChart />
-      </div>
-      <div style={{ height: 400, width: 400 }}>
-        <LineChart />
-      </div>
-      <div style={{ height: 400, width: 400 }}>
-        <LineChart />
+        <Sell />
       </div>
     </div>
   );

@@ -1,11 +1,12 @@
 import { DialogCom } from '@/components/dialog';
-import { DrawerCom } from '@/components/drawer';
+import { SheetCom } from '@/components/sheet';
 import { Input } from '@/components/ui/input';
 import DialogContent from '@/feature/category/dialogContent';
 import { useLocation } from 'react-router-dom';
+
+
 export default function Header() {
   const { pathname } = useLocation();
-
 
   return (
     <div className="h-[7vh] flex items-center justify-between px-5">
@@ -19,7 +20,7 @@ export default function Header() {
           </DialogCom>
         }
         {/* Avatar Part  */}
-        <DrawerCom />
+        <SheetCom />
       </div>
     </div>
   );
