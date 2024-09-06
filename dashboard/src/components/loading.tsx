@@ -10,8 +10,8 @@ export const Loading = () => {
   );
 };
 
-export const BtnLoading = ({ size }: { size?: string }) => {
-  return <Lottie animationData={btnLoadingAnimation} loop={true} className={`h-[${size || 50}px] w-[${size || 50}px]`} />;
+export const BtnLoading = () => {
+  return <Lottie animationData={btnLoadingAnimation} loop={true} className='h-[25px] w-[25px]' />;
 };
 
 

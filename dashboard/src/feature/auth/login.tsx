@@ -57,8 +57,7 @@ export default function Login() {
             )} />
           <Button className='w-full text-xl text-gray-500 font-medium' type='submit'>
             <div>
-              {/* {response.isLoading ? <BtnLoading size='20' /> : <p>Login</p>} */}
-              <BtnLoading size='20' />
+              {response.isLoading ? <BtnLoading /> : <p>Login</p>}
             </div>
           </Button>
         </form>
