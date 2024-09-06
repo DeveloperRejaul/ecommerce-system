@@ -30,10 +30,15 @@ async function bootstrap() {
 
   // create upload directory if not created
   const path = join(__dirname, '/upload');
-  if (!existsSync(path)) {await mkdir(path);}
+  if (!existsSync(path)) { await mkdir(path); }
 
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
+  app.enableCors({
+    origin: process.env.ORIGIN.split(','),
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true
+  });
   await app.listen(port);
   console.log(`Server running on: http://localhost:${port}`);
 }
