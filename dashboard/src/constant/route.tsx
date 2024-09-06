@@ -2,7 +2,7 @@
 import Home from '@/feature/home/home';
 import Category from '@/feature/category/category';
 import Order from '@/feature/order/order';
-import User from '@/feature/user/user';
+import User from '@/feature/users/user';
 import Coupon from '@/feature/coupon/coupon';
 import Product from '@/feature/product/product';
 import Shop from '@/feature/shop/shop';
@@ -15,5 +15,5 @@ export const paths = {
     home: ['/', '/category', '/order', '/user', '/coupon', '/product', '/shop']
 };
 
-export const rootCom = [ <Protected> <Main /> </Protected> , <Login />];
+export const rootCom = [<Protected> <Main /> </Protected>, <Login />];
 export const homeCom = [<Home />, <Category />, <Order />, <User />, <Coupon />, <Product />, <Shop />];

@@ -8,8 +8,15 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAppSelector } from '@/hooks/rtk';
+import { capitalizeEachWord } from '@/lib/utils';
 
 export function SheetCom() {
+    const role = useAppSelector(state => state.user.role);
+    const name = useAppSelector(state => state.user.name);
+    const email = useAppSelector(state => state.user.email);
+    const address = useAppSelector(state => state.user.address);
+
     return (
         <Sheet>
             <SheetTrigger asChild>
@@ -19,8 +26,8 @@ export function SheetCom() {
                         <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                     <div>
-                        <p className='text-xl'>Jon Deo</p>
-                        <p className='text-sm'>Admin</p>
+                        <p className='text-xl'>{capitalizeEachWord(name)}</p>
+                        <p className='text-sm'>{capitalizeEachWord(role)}</p>
                     </div>
                 </div>
             </SheetTrigger>
@@ -30,12 +37,12 @@ export function SheetCom() {
                         <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
                         <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
-                    <p className='text-2xl'>Jon Deo</p>
-                    <p className='text-sm'>Admin</p>
+                    <p className='text-2xl'>{capitalizeEachWord(name)}</p>
+                    <p className='text-sm'>{capitalizeEachWord(role)}</p>
                 </SheetHeader>
 
-                <p>Email: demo@gmail.com</p>
-                <p>Address: Ukhia Cox's Bazar</p>
+                <p>Email: {email}</p>
+                <p>Address: {address}</p>
 
                 <SheetFooter>
                     <SheetClose asChild>

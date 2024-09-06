@@ -1,10 +1,12 @@
+import { UserRole } from '@/constant/constant';
+import { useAppSelector } from '@/hooks/rtk';
 import { NavLink } from 'react-router-dom';
 
 export default function SideBar() {
+  const userRole = useAppSelector(state => state.user.role);
 
   const activeClass = 'flex py-2 pl-2  mx-5 text-xl font-medium bg-muted hover:bg-muted';
   const inActiveClass = 'flex py-2 pl-2 mx-5  text-xl font-medium hover:bg-muted';
-
 
   return (
     <div className="w-[300px] h-[100vh] border-r">
@@ -13,12 +15,12 @@ export default function SideBar() {
         <NavLink className={({ isActive }) => isActive ? activeClass : inActiveClass} to={'/'} end >
           Home
         </NavLink>
-        <NavLink
+        {userRole === UserRole.SUPPER_ADMIN && <NavLink
           className={({ isActive }) => isActive ? activeClass : inActiveClass}
           to='/shop'
           end >
           Shop
-        </NavLink>
+        </NavLink>}
         <NavLink
           className={({ isActive }) => isActive ? activeClass : inActiveClass}
           to='/category'

@@ -14,13 +14,12 @@ export default function Protected({ children }: ProtectedProps) {
   const isLogin = useAppSelector(state => state.auth.isLogin);
   const [checkValidUser, response] = useLazyCheckValidUserQuery();
 
-  if (isLogin) return children;
 
   useEffect(() => {
-    checkValidUser(undefined);
+    if (!isLogin) checkValidUser(undefined);
   }, []);
 
-  if (!isLogin && response.isLoading) return <Loading />;
-  if (!isLogin) return <Navigate to={paths.root[1]} />; // navigate to login screen
-
+  if (!isLogin) return <Loading />;
+  if (!isLogin || response.isError) return <Navigate to={paths.root[1]} />; // navigate to login screen
+  if (isLogin) return children;
 }

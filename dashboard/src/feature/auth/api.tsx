@@ -3,6 +3,7 @@ import { api } from '@/rtk/api';
 import { login, logout } from './slice';
 import { toast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
+import { addUser } from '../users/userSlice';
 
 export const authApi = api.injectEndpoints({
     overrideExisting: true,
@@ -18,9 +19,14 @@ export const authApi = api.injectEndpoints({
                     headers: { 'Content-Type': 'application/json' },
                 };
             },
+            transformResponse(baseQueryReturnValue) {
+                const { _id, email, name, address, avatar, role } = baseQueryReturnValue;
+                return { id: _id, email, name, address, avatar, role };
+            },
             async onQueryStarted(_, { queryFulfilled, dispatch }) {
                 try {
-                    await queryFulfilled;
+                    const { data } = await queryFulfilled;
+                    dispatch(addUser(data));
                     dispatch(login());
                 } catch (e: any) {
                     toast({
@@ -35,9 +41,14 @@ export const authApi = api.injectEndpoints({
 
         checkValidUser: builder.query({
             query: () => '/user/check',
+            transformResponse(baseQueryReturnValue) {
+                const { _id, email, name, address, avatar, role } = baseQueryReturnValue;
+                return { id: _id, email, name, address, avatar, role };
+            },
             async onQueryStarted(_, { queryFulfilled, dispatch }) {
                 try {
-                    await queryFulfilled;
+                    const { data } = await queryFulfilled;
+                    dispatch(addUser(data));
                     dispatch(login());
                 } catch {
                     dispatch(logout());
