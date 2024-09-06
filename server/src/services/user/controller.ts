@@ -1,4 +1,4 @@
-import { UserService } from './service';
+import { UserService } from "./service";
 import {
   Body,
   Controller,
@@ -7,37 +7,36 @@ import {
   Param,
   Post,
   Put,
-  Request,
+  Req,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
   UsePipes,
-} from '@nestjs/common';
+} from "@nestjs/common";
 
-import { JoiValidationPipe } from '../../validation.pipe';
-import { createUserSchema, updateUserSchema } from './dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { AuthGuard } from '../auth/auth.guard';
+import { JoiValidationPipe } from "../../validation.pipe";
+import { createUserSchema, updateUserSchema } from "./dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { AuthGuard } from "../auth/auth.guard";
+import { Request } from "express";
 
-@Controller('api/v-1/user')
+@Controller("api/v-1/user")
 export class UserController {
-  constructor(private readonly service: UserService) { }
+  constructor(private readonly service: UserService) {}
 
-
-
-
-  @Post('signup')
+  @Post("signup")
   @UsePipes(new JoiValidationPipe(createUserSchema))
-  @UseInterceptors(FileInterceptor('avatar'))
+  @UseInterceptors(FileInterceptor("avatar"))
   async createUser(@Body() user, @UploadedFile() file) {
     return this.service.create(user, file);
   }
 
-  @Post('vip')
+  @Post("vip")
   @UseGuards(AuthGuard)
   @UsePipes(new JoiValidationPipe(createUserSchema))
-  @UseInterceptors(FileInterceptor('avatar'))
-  async createVip(@Request() req, @Body() body, @UploadedFile() file) {
+  @UseInterceptors(FileInterceptor("avatar"))
+  async createVip(@Req() req, @Body() body, @UploadedFile() file) {
     return await this.service.Vip(body, file, {
       id: req.id,
       email: req.email,
@@ -45,35 +44,48 @@ export class UserController {
     });
   }
 
-  @Post('login')
-  async loginUser(@Body() body) {
-    return this.service.login(body);
+  @Post("login")
+  async loginUser(@Body() body, @Res({ passthrough: true }) res) {
+    return this.service.login(body, res);
+  }
+
+  @Get("check")
+  async checkUser(@Req() request) {
+    return this.service.checkValidUser(request);
   }
 
   @Get()
   @UseGuards(AuthGuard)
-  getUsers(@Request() { role, shopId }) {
+  getUsers(@Req() { role, shopId }) {
     return this.service.getAll(role, shopId);
   }
 
-  @Get(':id')
+  @Get(":id")
   getUser(@Param() { id }) {
     return this.service.findById(id);
   }
 
-  @Put(':id')
-  @UseInterceptors(FileInterceptor('avatar'))
+  @Put(":id")
+  @UseInterceptors(FileInterceptor("avatar"))
   @UsePipes(new JoiValidationPipe(updateUserSchema))
   @UseGuards(AuthGuard)
-  update(@Param() param, @Body() body, @UploadedFile() file, @Request() { role, email, id, shopId }) {
-    return this.service.update(param.id, body, file, { role, email, id, shopId });
+  update(
+    @Param() param,
+    @Body() body,
+    @UploadedFile() file,
+    @Req() { role, email, id, shopId }
+  ) {
+    return this.service.update(param.id, body, file, {
+      role,
+      email,
+      id,
+      shopId,
+    });
   }
 
-
-  @Delete(':id')
+  @Delete(":id")
   @UseGuards(AuthGuard)
-  delete(@Param() param, @Request() { role, email, id, shopId }) {
+  delete(@Param() param, @Req() { role, email, id, shopId }) {
     return this.service.delete(param.id, { role, email, id, shopId });
   }
-
 }

@@ -1,15 +1,16 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserRole } from './schema';
-import { IUserTypes, LoginUserType } from './dto';
-import type { AuthBody, IFileType, IMailBody } from 'src/types/types';
-import * as bcrypt from 'bcrypt';
-import { roleAvailable } from 'src/utils/role';
-import { saveFile } from 'src/utils/file';
-import { JwtService } from '@nestjs/jwt';
-import { Shop } from '../shop/schema';
-import { MailerService } from '@nestjs-modules/mailer';
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { Model } from "mongoose";
+import { InjectModel } from "@nestjs/mongoose";
+import { User, UserRole } from "./schema";
+import { IUserTypes, LoginUserType } from "./dto";
+import * as bcrypt from "bcrypt";
+import { roleAvailable } from "src/utils/role";
+import { saveFile } from "src/utils/file";
+import { JwtService } from "@nestjs/jwt";
+import { Shop } from "../shop/schema";
+import { MailerService } from "@nestjs-modules/mailer";
+import type { AuthBody, IFileType, IMailBody } from "src/types/types";
+import { Request, Response } from "express";
 
 const { ADMIN, USER, MODERATOR, SUPPER_ADMIN, OWNER } = UserRole;
 
@@ -20,7 +21,7 @@ export class UserService {
     @InjectModel(Shop.name) private shopModel: Model<Shop>,
     private readonly mailService: MailerService,
     private jwtService: JwtService
-  ) { }
+  ) {}
 
   /**
    * @description this function using for create user
@@ -29,28 +30,68 @@ export class UserService {
   async create(user: IUserTypes, file: IFileType) {
     if (roleAvailable([USER], user.role)) {
       user.password = await bcrypt.hash(user.password, 10);
-      if (file) { user.avatar = await saveFile(file); }
+      if (file) {
+        user.avatar = await saveFile(file);
+      }
       return await this.model.create(user);
     }
-    throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+    throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * @description this function using for check valid user
+   * @returns
+   */
+
+  async checkValidUser(req: Request) {
+    const COOKIE_KEY = process.env.COOKIE_KEY;
+    const cookies = req.cookies;
+
+    const ourCookie = cookies[COOKIE_KEY];
+
+    if (!ourCookie)
+      throw new HttpException("Unauthorized user", HttpStatus.UNAUTHORIZED);
+
+    // decode token
+    const decoded = this.jwtService.decode(ourCookie);
+    if (!decoded)
+      throw new HttpException("Unauthorized user", HttpStatus.UNAUTHORIZED);
+
+    const id = decoded.id;
+    const user = await this.model.findById(id);
+    if (!user)
+      throw new HttpException("Unauthorized user", HttpStatus.UNAUTHORIZED);
+    return user;
   }
 
   /**
    * @description this function using for login user
    * @returns user object
    */
-  async login(body: LoginUserType) {
+  async login(body: LoginUserType, res: Response) {
     const user = await this.model.findOne({ email: body.email });
     if (!user) {
-      throw new HttpException('Password or Email invalid', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        "Password or Email invalid",
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     const isValid = await bcrypt.compare(body.password, user.password);
     if (!isValid) {
-      throw new HttpException('Password or Email invalid', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        "Password or Email invalid",
+        HttpStatus.BAD_REQUEST
+      );
     }
 
-    const token = this.jwtService.sign({ email: user.email, id: user._id, role: user.role, shopId: user.shopId });
+    const token = this.jwtService.sign({
+      email: user.email,
+      id: user._id,
+      role: user.role,
+      shopId: user.shopId,
+    });
+    res.cookie(process.env.COOKIE_KEY, token);
     return { ...user.toJSON(), token };
   }
 
@@ -69,36 +110,49 @@ export class UserService {
     if (auth.role === OWNER && user.role === SUPPER_ADMIN) {
       if (file) user.avatar = await saveFile(file);
       const newUser = await this.model.create(user);
-      if (user.role === SUPPER_ADMIN) await this.shopModel.findByIdAndUpdate(user.shopId, { userId: newUser._id }, { new: true }).exec();
+      if (user.role === SUPPER_ADMIN)
+        await this.shopModel
+          .findByIdAndUpdate(
+            user.shopId,
+            { userId: newUser._id },
+            { new: true }
+          )
+          .exec();
       return newUser;
     }
 
-    // handle supper admin activity 
+    // handle supper admin activity
     if (auth.role === SUPPER_ADMIN) {
-      if (roleAvailable([ADMIN, MODERATOR], user.role) && user.shopId === user.shopId) {
+      if (
+        roleAvailable([ADMIN, MODERATOR], user.role) &&
+        user.shopId === user.shopId
+      ) {
         if (file) user.avatar = await saveFile(file);
         return await this.model.create(user);
       }
     }
 
-
-    // handle admin activity 
+    // handle admin activity
     if (auth.role === ADMIN) {
-      if (roleAvailable([MODERATOR], user.role) && user.shopId === user.shopId) {
+      if (
+        roleAvailable([MODERATOR], user.role) &&
+        user.shopId === user.shopId
+      ) {
         if (file) user.avatar = await saveFile(file);
         return await this.model.create(user);
       }
     }
 
     // Handle user role
-    if (user.role === USER) throw new HttpException('Bad Request ', HttpStatus.BAD_REQUEST);
-    throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+    if (user.role === USER)
+      throw new HttpException("Bad Request ", HttpStatus.BAD_REQUEST);
+    throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
   }
 
   /**
-  * @description this function using for get all users
-  * @returns  user array 
-  */
+   * @description this function using for get all users
+   * @returns  user array
+   */
 
   async getAll(role: string, shopId: string) {
     if (role === UserRole.OWNER) {
@@ -110,26 +164,26 @@ export class UserService {
     }
   }
 
-
   /**
    * @description this function using for update user using user id
    * @returns  user object
-  */
+   */
   async update(id: string, body: IUserTypes, file: IFileType, auth: AuthBody) {
     if (body.password) body.password = await bcrypt.hash(body.password, 10);
 
-    // handle owner 
+    // handle owner
     if (auth.role === OWNER) {
       if (file) body.avatar = await saveFile(file);
       return this.model.findByIdAndUpdate(id, body, { new: true }).exec();
     }
 
-    if (body.role === OWNER) throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+    if (body.role === OWNER)
+      throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
     const user = await this.model.findById({ _id: id });
-    if (auth.shopId !== user.shopId.toString()) throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+    if (auth.shopId !== user.shopId.toString())
+      throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
 
-
-    // handle supper admin 
+    // handle supper admin
     if (auth.role === SUPPER_ADMIN) {
       if (user.role === SUPPER_ADMIN && user._id === auth.id) {
         if (file) body.avatar = await saveFile(file);
@@ -142,7 +196,7 @@ export class UserService {
       }
     }
 
-    // handle admin 
+    // handle admin
     if (auth.role === ADMIN) {
       if (user.role === ADMIN && user._id === auth.id) {
         if (file) body.avatar = await saveFile(file);
@@ -155,7 +209,7 @@ export class UserService {
       }
     }
 
-    // handle Moderator 
+    // handle Moderator
     if (auth.role === MODERATOR) {
       if (user.role === MODERATOR && user._id === auth.id) {
         if (file) body.avatar = await saveFile(file);
@@ -168,61 +222,68 @@ export class UserService {
       }
     }
 
-    // handle Moderator 
+    // handle Moderator
     if (auth.role === USER && auth.id === user._id) {
       if (roleAvailable([USER], user.role)) {
         if (file) body.avatar = await saveFile(file);
         return this.model.findByIdAndUpdate(id, body, { new: true }).exec();
       }
     }
-    throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+    throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
   }
-
 
   /**
    * @description this function using for delete user using user id
    * @returns  user object
-  */
+   */
   async delete(id: string, auth: AuthBody) {
     if (auth.role === OWNER) return this.model.findByIdAndDelete(id);
 
     const user = await this.model.findById({ _id: id });
 
     // checking same shop member
-    if (auth.shopId !== user.shopId.toString()) throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+    if (auth.shopId !== user.shopId.toString())
+      throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
 
-    // owner not allowed to delete , only can delete owner 
-    if (user.role === OWNER) throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+    // owner not allowed to delete , only can delete owner
+    if (user.role === OWNER)
+      throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
 
-
-    // handle supper admin 
+    // handle supper admin
     if (auth.role === SUPPER_ADMIN) {
-      if (user.role === SUPPER_ADMIN && user._id === auth.id) return this.model.findByIdAndDelete(id);
-      if (roleAvailable([ADMIN, MODERATOR, USER], user.role)) return this.model.findByIdAndDelete(id);
+      if (user.role === SUPPER_ADMIN && user._id === auth.id)
+        return this.model.findByIdAndDelete(id);
+      if (roleAvailable([ADMIN, MODERATOR, USER], user.role))
+        return this.model.findByIdAndDelete(id);
     }
 
-    // handle admin 
+    // handle admin
     if (auth.role === ADMIN) {
-      if (user.role === ADMIN && user._id === auth.id) return this.model.findByIdAndDelete(id);
-      if (roleAvailable([MODERATOR, USER], user.role)) return this.model.findByIdAndDelete(id);
+      if (user.role === ADMIN && user._id === auth.id)
+        return this.model.findByIdAndDelete(id);
+      if (roleAvailable([MODERATOR, USER], user.role))
+        return this.model.findByIdAndDelete(id);
     }
 
-    // handle Moderator 
+    // handle Moderator
     if (auth.role === MODERATOR) {
-      if (user.role === MODERATOR && user._id === auth.id) return this.model.findByIdAndDelete(id);
-      if (roleAvailable([USER], user.role)) return this.model.findByIdAndDelete(id);
+      if (user.role === MODERATOR && user._id === auth.id)
+        return this.model.findByIdAndDelete(id);
+      if (roleAvailable([USER], user.role))
+        return this.model.findByIdAndDelete(id);
     }
 
-    // handle Moderator 
-    if (auth.role === USER && user._id === auth.id) return this.model.findByIdAndDelete(id);
+    // handle Moderator
+    if (auth.role === USER && user._id === auth.id)
+      return this.model.findByIdAndDelete(id);
 
-    throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+    throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
   }
 
   /**
    * @description this function using for find user using user id
    * @returns  user object
-  */
+   */
   async findById(id: string) {
     return await this.model.findById({ _id: id });
   }
@@ -239,8 +300,13 @@ export class UserService {
    * @returns  
   */
   async sendMail({ text, from, to, subject, html }: IMailBody) {
-    const result = await this.mailService.sendMail({ from, to, subject, text, html });
+    const result = await this.mailService.sendMail({
+      from,
+      to,
+      subject,
+      text,
+      html,
+    });
     return result;
   }
-
 }

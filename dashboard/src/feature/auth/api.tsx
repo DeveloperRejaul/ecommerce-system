@@ -32,9 +32,22 @@ export const authApi = api.injectEndpoints({
                 }
             },
         }),
+
+        checkValidUser: builder.query({
+            query: () => '/user/check',
+            async onQueryStarted(_, { queryFulfilled, dispatch }) {
+                try {
+                    await queryFulfilled;
+                    dispatch(login());
+                } catch {
+                    dispatch(logout());
+                }
+            },
+        })
     }),
 });
 
 export const {
-    useLoginMutation
+    useLoginMutation,
+    useLazyCheckValidUserQuery
 } = authApi;
