@@ -13,14 +13,19 @@ import { CouponModule } from './services/coupon/module';
 import { ProductModule } from './services/products/module';
 import { RatingModule } from './services/rating/module';
 import { OrderModule } from './services/order/module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'node:path';
 
-// 
+ 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: ['.env'], isGlobal: true }),
     MongooseModule.forRoot(process.env.DATABASE_URL),
     JwtModule.register({ global: true, secret: process.env.JWT_SECRET, signOptions: { expiresIn: '7d' } }),
-
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'dist', 'client'), // Path where your static files are located
+      serveRoot: '/', // URL root for serving files
+    }),
     MailerModule.forRoot({
       transport: {
         host: process.env.EMAIL_HOST,

@@ -10,7 +10,7 @@ import { Product } from '../products/schema';
 import { Coupon } from '../coupon/schema';
 import { checkCouponDate } from 'src/utils/coupon';
 
-const { ADMIN, MODERATOR, SUPPER_ADMIN, USER } = UserRole;
+const { ADMIN, MODERATOR, SUPER_ADMIN, USER } = UserRole;
 @Injectable()
 export class OrderService {
   constructor(
@@ -83,7 +83,7 @@ export class OrderService {
 
     const order = await this.model.findById({ _id: id });
     if (order) {
-      if (roleAvailable([SUPPER_ADMIN, ADMIN, MODERATOR], role) && order.shopId.toString() === shopId) {
+      if (roleAvailable([SUPER_ADMIN, ADMIN, MODERATOR], role) && order.shopId.toString() === shopId) {
         return await this.model.findByIdAndDelete(id);
       }
       if (role === USER && user === order.userId.toString()) return this.model.findByIdAndDelete(id);
@@ -97,7 +97,7 @@ export class OrderService {
     if (role === UserRole.OWNER) {
       return await this.model.find();
     }
-    if (roleAvailable([ADMIN, MODERATOR, SUPPER_ADMIN,], role)) {
+    if (roleAvailable([ADMIN, MODERATOR, SUPER_ADMIN,], role)) {
       return await this.model.find({ shopId });
     }
   };
@@ -118,7 +118,7 @@ export class OrderService {
     }
 
     const user = await this.userModel.findById({ _id: userId });
-    if (roleAvailable([ADMIN, MODERATOR, SUPPER_ADMIN], role) && user.shopId.toString() === shopId) {
+    if (roleAvailable([ADMIN, MODERATOR, SUPER_ADMIN], role) && user.shopId.toString() === shopId) {
       return await this.model.findByIdAndUpdate(id, body, { new: true });
     }
     throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);

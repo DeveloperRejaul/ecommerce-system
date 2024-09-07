@@ -7,7 +7,7 @@ import { UserRole } from '../user/schema';
 import { saveFile } from 'src/utils/file';
 import { roleAvailable } from 'src/utils/role';
 
-const { ADMIN, SUPPER_ADMIN, MODERATOR } = UserRole;
+const { ADMIN, SUPER_ADMIN, MODERATOR } = UserRole;
 
 @Injectable()
 export class ProductService {
@@ -29,7 +29,7 @@ export class ProductService {
       return await this.model.create(body);
     }
 
-    if (roleAvailable([ADMIN, SUPPER_ADMIN, MODERATOR], role) && shopId === body.shopId) {
+    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role) && shopId === body.shopId) {
       if (files) {
         const promises = files.map(async file => await saveFile(file));
         body.images = await Promise.all(promises);
@@ -43,7 +43,7 @@ export class ProductService {
   async getAllProduct(auth: AuthBody) {
     const { role, shopId } = auth;
     if (role === UserRole.OWNER) return this.model.find();
-    if (roleAvailable([ADMIN, SUPPER_ADMIN, MODERATOR], role)) return this.model.find({ shopId });
+    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) return this.model.find({ shopId });
     throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
   };
 
@@ -64,7 +64,7 @@ export class ProductService {
       }, { new: true });
     }
 
-    if (roleAvailable([ADMIN, SUPPER_ADMIN, MODERATOR], role)) {
+    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) {
       const product = await this.model.findById({ _id: id });
       if (product.shopId.toString() === shopId) {
         if (files) {
@@ -85,7 +85,7 @@ export class ProductService {
   async deleteProduct(id: string, auth: AuthBody) {
     const { role, shopId } = auth;
     if (role === UserRole.OWNER) return await this.model.findByIdAndDelete(id);
-    if (roleAvailable([ADMIN, SUPPER_ADMIN, MODERATOR], role)) {
+    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) {
       const product = await this.model.findById({ _id: id });
       if (product.shopId.toString() === shopId) return await this.model.findByIdAndDelete(id);
     }

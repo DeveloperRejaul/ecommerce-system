@@ -10,19 +10,18 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAppSelector } from '@/hooks/rtk';
 import { capitalizeEachWord } from '@/lib/utils';
+import { BASE_URL } from '@/constant/constant';
 
 export function SheetCom() {
-    const role = useAppSelector(state => state.user.role);
-    const name = useAppSelector(state => state.user.name);
-    const email = useAppSelector(state => state.user.email);
-    const address = useAppSelector(state => state.user.address);
+    const { role, email, avatar, name, address } = useAppSelector(state => state.user);
+
 
     return (
         <Sheet>
             <SheetTrigger asChild>
                 <div className='flex flex-row items-center gap-x-5 cursor-pointer' >
                     <Avatar>
-                        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                        <AvatarImage src={`${BASE_URL}/file/${avatar}`} alt="@shadcn" />
                         <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                     <div>
@@ -34,7 +33,7 @@ export function SheetCom() {
             <SheetContent >
                 <SheetHeader className='flex flex-col justify-center items-center'>
                     <Avatar className='w-[100px] h-[100px]'>
-                        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                        <AvatarImage src={`${BASE_URL}/file/${avatar}`} alt="@shadcn" />
                         <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                     <p className='text-2xl'>{capitalizeEachWord(name)}</p>

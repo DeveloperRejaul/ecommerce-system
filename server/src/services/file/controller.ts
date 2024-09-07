@@ -1,18 +1,17 @@
-import { Controller, Get, Param, StreamableFile } from '@nestjs/common';
-import { createReadStream } from 'fs';
+import { Controller, Get, HttpStatus, Param, Res } from '@nestjs/common';
+import { existsSync } from 'fs';
 import { join } from 'path';
 
-@Controller('file')
+@Controller('api/v-1/file')
 export class FileController {
   @Get(':id')
-  getFile(@Param() { id }: { id: string }) {
-    const ext = id.split('.').pop();
-    const imageExt = ['jpeg', 'jpg', 'png'];
-
-    const file = createReadStream(join(process.cwd(), 'dist', 'upload', id));
-    return new StreamableFile(file, {
-      type: imageExt.includes(ext) ? 'image/*' : 'audio/*',
-      disposition: `attachment; filename="${id}"`,
-    });
+  getFile(@Param()param, @Res() res) {
+    const file = join(process.cwd(), 'dist', 'upload', param.id);
+    
+    if (existsSync(file)) {
+      return res.sendFile(file);
+    } else {
+      return res.status(HttpStatus.NOT_FOUND).send('File not found');
+    }
   }
 }

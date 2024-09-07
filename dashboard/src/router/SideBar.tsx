@@ -15,7 +15,7 @@ export default function SideBar() {
         <NavLink className={({ isActive }) => isActive ? activeClass : inActiveClass} to={'/'} end >
           Home
         </NavLink>
-        {userRole === UserRole.SUPPER_ADMIN && <NavLink
+        {userRole === UserRole.OWNER && <NavLink
           className={({ isActive }) => isActive ? activeClass : inActiveClass}
           to='/shop'
           end >

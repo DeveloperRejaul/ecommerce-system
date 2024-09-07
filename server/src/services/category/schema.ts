@@ -12,7 +12,7 @@ export class Category extends Document {
   @Prop({ type: String, required: true })
   name: string;
 
-  @Prop({ type: Types.ObjectId, required: true, ref: 'shop' })
+  @Prop({ type: Types.ObjectId, required: true, ref: 'Shop' })
   shopId: string;
 }
 

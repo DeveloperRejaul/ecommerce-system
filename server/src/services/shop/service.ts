@@ -32,7 +32,7 @@ export class ShopService {
  */
   async delete(id: string, role: string, shopId: string) {
     if (role === UserRole.OWNER) return await this.model.findByIdAndDelete(id);
-    if (role === UserRole.SUPPER_ADMIN) {
+    if (role === UserRole.SUPER_ADMIN) {
       if (shopId === id) return await this.model.findByIdAndDelete(id);
     }
     throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
@@ -44,7 +44,7 @@ export class ShopService {
       if (file) body['avatar'] = await saveFile(file);
       return await this.model.findByIdAndUpdate(id, body, { new: true });
     }
-    if (role === UserRole.SUPPER_ADMIN) {
+    if (role === UserRole.SUPER_ADMIN) {
       if (shopId === id) {
         if (file) body['avatar'] = await saveFile(file);
         return await this.model.findByIdAndUpdate(id, body, { new: true });

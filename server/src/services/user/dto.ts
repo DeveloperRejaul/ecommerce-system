@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import { UserRole } from './schema';
 
-const { ADMIN, MODERATOR, OWNER, SUPPER_ADMIN, USER } = UserRole;
+const { ADMIN, MODERATOR, OWNER, SUPER_ADMIN, USER } = UserRole;
 export const createUserSchema = Joi.object({
   name: Joi.string().min(4).max(30).required(),
   email: Joi.string().email().required(),
@@ -9,7 +9,7 @@ export const createUserSchema = Joi.object({
   address: Joi.string().required(),
   role: Joi.string()
     .uppercase()
-    .valid(ADMIN, MODERATOR, OWNER, SUPPER_ADMIN, USER),
+    .valid(ADMIN, MODERATOR, OWNER, SUPER_ADMIN, USER),
   bookmark: Joi.array().items(Joi.string().id().required()),
   shopId: Joi.string().required(),
 });
@@ -21,7 +21,7 @@ export const updateUserSchema = Joi.object({
   address: Joi.string(),
   role: Joi.string()
     .uppercase()
-    .valid(ADMIN, MODERATOR, OWNER, SUPPER_ADMIN, USER),
+    .valid(ADMIN, MODERATOR, OWNER, SUPER_ADMIN, USER),
   bookmark: Joi.array().items(Joi.string().id().required()),
   shopId: Joi.string(),
 });

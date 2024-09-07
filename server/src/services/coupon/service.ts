@@ -6,7 +6,7 @@ import { CreateCouponDto, UpdateCouponDto } from './dto';
 import { AuthBody } from 'src/types/types';
 import { UserRole } from '../user/schema';
 import { roleAvailable } from 'src/utils/role';
-const { ADMIN, SUPPER_ADMIN, MODERATOR } = UserRole;
+const { ADMIN, SUPER_ADMIN, MODERATOR } = UserRole;
 
 @Injectable()
 export class CouponService {
@@ -16,7 +16,7 @@ export class CouponService {
   async createCoupon(body: CreateCouponDto, auth: AuthBody) {
     const { role, shopId } = auth;
     if (role === UserRole.OWNER) return await this.model.create(body);
-    if (roleAvailable([ADMIN, SUPPER_ADMIN, MODERATOR], role)) {
+    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) {
       if (body.shopId === shopId) return await this.model.create(body);
     }
     throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
@@ -26,7 +26,7 @@ export class CouponService {
   async getCoupon(auth: AuthBody) {
     const { role, shopId } = auth;
     if (role === UserRole.OWNER) return await this.model.find();
-    if (roleAvailable([ADMIN, SUPPER_ADMIN, MODERATOR], role)) return await this.model.find({ shopId });
+    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) return await this.model.find({ shopId });
     throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
   }
 
@@ -39,7 +39,7 @@ export class CouponService {
   async updateCoupon(id: string, body: UpdateCouponDto, auth: AuthBody) {
     const { role, shopId } = auth;
     if (role === UserRole.OWNER) return await this.model.findByIdAndUpdate(id, body, { new: true });
-    if (roleAvailable([ADMIN, SUPPER_ADMIN, MODERATOR], role)) {
+    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) {
       const coupon = await this.getByIdCoupon(id);
       if (coupon.shopId.toString() === shopId) return await this.model.findByIdAndUpdate(id);;
     }
@@ -51,7 +51,7 @@ export class CouponService {
     const { role, shopId } = auth;
     if (role === UserRole.OWNER) return await this.model.findByIdAndDelete(id);
 
-    if (roleAvailable([ADMIN, SUPPER_ADMIN, MODERATOR], role)) {
+    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) {
       const coupon = await this.getByIdCoupon(id);
       if (coupon.shopId.toString() === shopId) return await this.model.findByIdAndDelete(id);;
     }

@@ -1,18 +1,18 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { Model } from "mongoose";
-import { InjectModel } from "@nestjs/mongoose";
-import { User, UserRole } from "./schema";
-import { IUserTypes, LoginUserType } from "./dto";
-import * as bcrypt from "bcrypt";
-import { roleAvailable } from "src/utils/role";
-import { saveFile } from "src/utils/file";
-import { JwtService } from "@nestjs/jwt";
-import { Shop } from "../shop/schema";
-import { MailerService } from "@nestjs-modules/mailer";
-import type { AuthBody, IFileType, IMailBody } from "src/types/types";
-import { Request, Response } from "express";
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserRole } from './schema';
+import { IUserTypes, LoginUserType } from './dto';
+import * as bcrypt from 'bcrypt';
+import { roleAvailable } from 'src/utils/role';
+import { saveFile } from 'src/utils/file';
+import { JwtService } from '@nestjs/jwt';
+import { Shop } from '../shop/schema';
+import { MailerService } from '@nestjs-modules/mailer';
+import type { AuthBody, IFileType, IMailBody } from 'src/types/types';
+import { Request, Response } from 'express';
 
-const { ADMIN, USER, MODERATOR, SUPPER_ADMIN, OWNER } = UserRole;
+const { ADMIN, USER, MODERATOR, SUPER_ADMIN, OWNER } = UserRole;
 
 @Injectable()
 export class UserService {
@@ -35,7 +35,7 @@ export class UserService {
       }
       return await this.model.create(user);
     }
-    throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
+    throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
   }
 
   /**
@@ -50,17 +50,17 @@ export class UserService {
     const ourCookie = cookies[COOKIE_KEY];
 
     if (!ourCookie)
-      throw new HttpException("Unauthorized user", HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Unauthorized user', HttpStatus.UNAUTHORIZED);
 
     // decode token
     const decoded = this.jwtService.decode(ourCookie);
     if (!decoded)
-      throw new HttpException("Unauthorized user", HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Unauthorized user', HttpStatus.UNAUTHORIZED);
 
     const id = decoded.id;
     const user = await this.model.findById(id);
     if (!user)
-      throw new HttpException("Unauthorized user", HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Unauthorized user', HttpStatus.UNAUTHORIZED);
     return user;
   }
 
@@ -72,7 +72,7 @@ export class UserService {
     const user = await this.model.findOne({ email: body.email });
     if (!user) {
       throw new HttpException(
-        "Password or Email invalid",
+        'Password or Email invalid',
         HttpStatus.BAD_REQUEST
       );
     }
@@ -80,7 +80,7 @@ export class UserService {
     const isValid = await bcrypt.compare(body.password, user.password);
     if (!isValid) {
       throw new HttpException(
-        "Password or Email invalid",
+        'Password or Email invalid',
         HttpStatus.BAD_REQUEST
       );
     }
@@ -107,26 +107,16 @@ export class UserService {
       return await this.model.create(user);
     }
 
-    if (auth.role === OWNER && user.role === SUPPER_ADMIN) {
+    if (auth.role === OWNER && user.role === SUPER_ADMIN) {
       if (file) user.avatar = await saveFile(file);
       const newUser = await this.model.create(user);
-      if (user.role === SUPPER_ADMIN)
-        await this.shopModel
-          .findByIdAndUpdate(
-            user.shopId,
-            { userId: newUser._id },
-            { new: true }
-          )
-          .exec();
+      if (user.role === SUPER_ADMIN) await this.shopModel.findByIdAndUpdate( user.shopId,{ userId: newUser._id }, { new: true }).exec();
       return newUser;
     }
 
-    // handle supper admin activity
-    if (auth.role === SUPPER_ADMIN) {
-      if (
-        roleAvailable([ADMIN, MODERATOR], user.role) &&
-        user.shopId === user.shopId
-      ) {
+    // handle super admin activity
+    if (auth.role === SUPER_ADMIN) {
+      if ( roleAvailable([ADMIN, MODERATOR], user.role) &&user.shopId === user.shopId) {
         if (file) user.avatar = await saveFile(file);
         return await this.model.create(user);
       }
@@ -134,19 +124,15 @@ export class UserService {
 
     // handle admin activity
     if (auth.role === ADMIN) {
-      if (
-        roleAvailable([MODERATOR], user.role) &&
-        user.shopId === user.shopId
-      ) {
+      if (roleAvailable([MODERATOR], user.role) && user.shopId === user.shopId) {
         if (file) user.avatar = await saveFile(file);
         return await this.model.create(user);
       }
     }
 
     // Handle user role
-    if (user.role === USER)
-      throw new HttpException("Bad Request ", HttpStatus.BAD_REQUEST);
-    throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
+    if (user.role === USER) throw new HttpException('Bad Request ', HttpStatus.BAD_REQUEST);
+    throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
   }
 
   /**
@@ -156,10 +142,10 @@ export class UserService {
 
   async getAll(role: string, shopId: string) {
     if (role === UserRole.OWNER) {
-      return await this.model.find();
+      return await this.model.find().select('-password -__v');
     }
 
-    if (roleAvailable([SUPPER_ADMIN, ADMIN, MODERATOR], role)) {
+    if (roleAvailable([SUPER_ADMIN, ADMIN, MODERATOR], role)) {
       return await this.model.find({ shopId });
     }
   }
@@ -178,19 +164,19 @@ export class UserService {
     }
 
     if (body.role === OWNER)
-      throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
+      throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
     const user = await this.model.findById({ _id: id });
     if (auth.shopId !== user.shopId.toString())
-      throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
+      throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
 
-    // handle supper admin
-    if (auth.role === SUPPER_ADMIN) {
-      if (user.role === SUPPER_ADMIN && user._id === auth.id) {
+    // handle super admin
+    if (auth.role === SUPER_ADMIN) {
+      if (user.role === SUPER_ADMIN && user._id === auth.id) {
         if (file) body.avatar = await saveFile(file);
         return this.model.findByIdAndUpdate(id, body, { new: true }).exec();
       }
 
-      if (roleAvailable([SUPPER_ADMIN, ADMIN, MODERATOR, USER], user.role)) {
+      if (roleAvailable([SUPER_ADMIN, ADMIN, MODERATOR, USER], user.role)) {
         if (file) body.avatar = await saveFile(file);
         return this.model.findByIdAndUpdate(id, body, { new: true }).exec();
       }
@@ -229,7 +215,7 @@ export class UserService {
         return this.model.findByIdAndUpdate(id, body, { new: true }).exec();
       }
     }
-    throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
+    throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
   }
 
   /**
@@ -243,15 +229,15 @@ export class UserService {
 
     // checking same shop member
     if (auth.shopId !== user.shopId.toString())
-      throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
+      throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
 
     // owner not allowed to delete , only can delete owner
     if (user.role === OWNER)
-      throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
+      throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
 
-    // handle supper admin
-    if (auth.role === SUPPER_ADMIN) {
-      if (user.role === SUPPER_ADMIN && user._id === auth.id)
+    // handle super admin
+    if (auth.role === SUPER_ADMIN) {
+      if (user.role === SUPER_ADMIN && user._id === auth.id)
         return this.model.findByIdAndDelete(id);
       if (roleAvailable([ADMIN, MODERATOR, USER], user.role))
         return this.model.findByIdAndDelete(id);
@@ -277,7 +263,7 @@ export class UserService {
     if (auth.role === USER && user._id === auth.id)
       return this.model.findByIdAndDelete(id);
 
-    throw new HttpException("Something went wrong", HttpStatus.BAD_REQUEST);
+    throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
   }
 
   /**
