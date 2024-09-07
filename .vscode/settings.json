@@ -1,8 +1,8 @@
 {
   "files.autoSave": "onFocusChange",
-  // "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[javascript]": {
-    "editor.formatOnSave": false
+    "editor.formatOnSave": true
   },
   "[javascriptreact]": {
     "editor.formatOnSave": true

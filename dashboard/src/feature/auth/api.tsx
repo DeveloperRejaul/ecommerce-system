@@ -5,6 +5,11 @@ import { toast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { addUser } from '../users/userSlice';
 
+
+interface IUserDataType {
+    _id: string, email: string, name: string, address: string, avatar: string, role: string
+}
+
 export const authApi = api.injectEndpoints({
     overrideExisting: true,
     endpoints: (builder) => ({
@@ -19,7 +24,7 @@ export const authApi = api.injectEndpoints({
                     headers: { 'Content-Type': 'application/json' },
                 };
             },
-            transformResponse(baseQueryReturnValue) {
+            transformResponse(baseQueryReturnValue: IUserDataType) {
                 const { _id, email, name, address, avatar, role } = baseQueryReturnValue;
                 return { id: _id, email, name, address, avatar, role };
             },
@@ -41,7 +46,7 @@ export const authApi = api.injectEndpoints({
 
         checkValidUser: builder.query({
             query: () => '/user/check',
-            transformResponse(baseQueryReturnValue) {
+            transformResponse(baseQueryReturnValue: IUserDataType) {
                 const { _id, email, name, address, avatar, role } = baseQueryReturnValue;
                 return { id: _id, email, name, address, avatar, role };
             },

@@ -3,29 +3,27 @@ import {
   ExecutionContext,
   Injectable,
   UnauthorizedException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
-import { AuthService } from './service';
-
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { Request } from "express";
+import { AuthService } from "./service";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService, private service: AuthService) { }
+  constructor(private jwtService: JwtService, private service: AuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const token =
+      this.extractTokenFromHeader(request) ||
+      request.cookies[process.env.COOKIE_KEY];
     if (!token) {
       throw new UnauthorizedException();
     }
     try {
-      const payload = await this.jwtService.verifyAsync(
-        token,
-        {
-          secret: process.env.JWT_SECRET
-        }
-      );
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET,
+      });
 
       const userExists = await this.service.findById(payload.id);
 
@@ -33,10 +31,10 @@ export class AuthGuard implements CanActivate {
         throw new UnauthorizedException();
       }
 
-      request['id'] = payload.id;
-      request['email'] = payload.email;
-      request['role'] = userExists.role;
-      request['shopId'] = payload?.shopId;
+      request["id"] = payload.id;
+      request["email"] = payload.email;
+      request["role"] = userExists.role;
+      request["shopId"] = payload?.shopId;
     } catch {
       throw new UnauthorizedException();
     }

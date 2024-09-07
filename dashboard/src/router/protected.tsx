@@ -19,7 +19,8 @@ export default function Protected({ children }: ProtectedProps) {
     if (!isLogin) checkValidUser(undefined);
   }, []);
 
-  if (!isLogin) return <Loading />;
+
+  if (response.isLoading) return <Loading />;
   if (!isLogin || response.isError) return <Navigate to={paths.root[1]} />; // navigate to login screen
   if (isLogin) return children;
 }
