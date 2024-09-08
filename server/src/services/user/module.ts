@@ -11,8 +11,7 @@ import { AuthService } from '../auth/service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Shop.name, schema: ShopSchema }]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }, { name: Shop.name, schema: ShopSchema }]),
   ],
   controllers: [UserController, ShopController, AuthController],
   providers: [UserService, ShopService, AuthService],

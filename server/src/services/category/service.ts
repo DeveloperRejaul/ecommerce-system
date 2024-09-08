@@ -2,25 +2,29 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Category } from './schema';
 import { Model } from 'mongoose';
-import { AuthBody } from 'src/types/types';
+import { AuthBody, IFileType } from 'src/types/types';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto';
 import { UserRole } from '../user/schema';
 import { roleAvailable } from 'src/utils/role';
+import { saveFile } from 'src/utils/file';
 const { ADMIN, SUPER_ADMIN, MODERATOR } = UserRole;
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectModel(Category.name) private model: Model<Category>
-  ) {}
+  ) { }
 
-  async createCategory(body: CreateCategoryDto, auth: AuthBody) {
+  async createCategory(body: CreateCategoryDto, auth: AuthBody, file: IFileType) {
     if (auth.role === UserRole.OWNER) {
+      if (file) body.avatar = await saveFile(file);
       return await this.model.create(body);
     }
     if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], auth.role)) {
-      if (auth.shopId === body.shopId.toString())
+      if (auth.shopId === body.shopId.toString()) {
+        if (file) body.avatar = await saveFile(file);
         return await this.model.create(body);
+      };
     }
     throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
   }

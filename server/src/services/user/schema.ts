@@ -34,7 +34,7 @@ export class User extends Document {
   @Prop({ enum: UserRole, default: UserRole.USER })
   role: UserRole;
 
-  @Prop({ type: Types.ObjectId, ref: 'shop' })
+  @Prop({ type: Types.ObjectId, ref: 'Shop' })
   shopId: Types.ObjectId;
 }
 

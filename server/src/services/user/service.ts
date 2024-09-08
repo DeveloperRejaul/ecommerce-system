@@ -100,10 +100,6 @@ export class UserService {
    * @returns create user object
    */
   async Vip(user: IUserTypes, file: IFileType, auth: AuthBody) {
-    console.log(user);
-    console.log(file);
-    console.log(auth);
-
     user.password = await bcrypt.hash(user.password, 10);
 
     // handle owner role
@@ -149,11 +145,11 @@ export class UserService {
 
   async getAll(role: string, shopId: string) {
     if (role === UserRole.OWNER) {
-      return await this.model.find().select('-password -__v');
+      return await this.model.find().select('-password -__v').populate('shopId').exec();
     }
 
     if (roleAvailable([SUPER_ADMIN, ADMIN, MODERATOR], role)) {
-      return await this.model.find({ shopId });
+      return await this.model.find({ shopId }).select('-password -__v').populate('shopId').exec();
     }
   }
 

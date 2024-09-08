@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, Request, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { CategoryService } from './service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto';
 import { AuthGuard } from '../auth/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('api/v-1/category')
 export class CategoryController {
@@ -10,8 +11,9 @@ export class CategoryController {
 
   @Post()
   @UseGuards(AuthGuard)
-  createCategory(@Body() body: CreateCategoryDto, @Request() req) {
-    return this.service.createCategory(body, req);
+  @UseInterceptors(FileInterceptor('avatar'))
+  createCategory(@Req() req, @Body() body: CreateCategoryDto, @UploadedFile() file) {
+    return this.service.createCategory(body, req, file);
   };
 
   @Get()

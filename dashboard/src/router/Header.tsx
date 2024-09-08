@@ -1,7 +1,8 @@
 import { DialogCom } from '@/components/dialog';
 import { SheetCom } from '@/components/sheet';
 import { Input } from '@/components/ui/input';
-import DialogContent from '@/feature/category/dialogContent';
+import DialogContent from '@/feature/category/create-category';
+import CreateCoupon from '@/feature/coupon/create-coupon';
 import CreateShop from '@/feature/shop/create-shop';
 import CreateUser from '@/feature/users/create-user';
 import { useLocation } from 'react-router-dom';
@@ -11,7 +12,8 @@ export default function Header() {
   const { pathname } = useLocation();
   const components: { [key: string]: JSX.Element } = {
     '/user': <CreateUser />,
-    '/shop': <CreateShop />
+    '/shop': <CreateShop />,
+    '/coupon': <CreateCoupon />
   };
 
   return (

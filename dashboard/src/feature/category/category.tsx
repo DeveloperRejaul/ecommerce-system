@@ -1,90 +1,40 @@
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { BASE_URL } from '@/constant/constant';
+import { Pencil2Icon, TrashIcon } from '@radix-ui/react-icons';
 import { useGetAllCategoryQuery } from './api';
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableFooter,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import { ICategoryType } from './types';
 
-export default function Category() {
-    const response = useGetAllCategoryQuery(undefined);
-    const invoices = [
-        {
-            invoice: 'INV001',
-            paymentStatus: 'Paid',
-            totalAmount: '$250.00',
-            paymentMethod: 'Credit Card',
-        },
-        {
-            invoice: 'INV002',
-            paymentStatus: 'Pending',
-            totalAmount: '$150.00',
-            paymentMethod: 'PayPal',
-        },
-        {
-            invoice: 'INV003',
-            paymentStatus: 'Unpaid',
-            totalAmount: '$350.00',
-            paymentMethod: 'Bank Transfer',
-        },
-        {
-            invoice: 'INV004',
-            paymentStatus: 'Paid',
-            totalAmount: '$450.00',
-            paymentMethod: 'Credit Card',
-        },
-        {
-            invoice: 'INV005',
-            paymentStatus: 'Paid',
-            totalAmount: '$550.00',
-            paymentMethod: 'PayPal',
-        },
-        {
-            invoice: 'INV006',
-            paymentStatus: 'Pending',
-            totalAmount: '$200.00',
-            paymentMethod: 'Bank Transfer',
-        },
-        {
-            invoice: 'INV007',
-            paymentStatus: 'Unpaid',
-            totalAmount: '$300.00',
-            paymentMethod: 'Credit Card',
-        },
-    ];
-    console.log(response.data);
+export default function category() {
+    const res = useGetAllCategoryQuery(undefined);
 
-    return (
-        <Table>
-            <TableCaption>A list of your category</TableCaption>
-            <TableHeader>
-                <TableRow>
-                    <TableHead className="w-[100px]">#SL</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Method</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {invoices.map((invoice) => (
-                    <TableRow key={invoice.invoice}>
-                        <TableCell className="font-medium">{invoice.invoice}</TableCell>
-                        <TableCell>{invoice.paymentStatus}</TableCell>
-                        <TableCell>{invoice.paymentMethod}</TableCell>
-                        <TableCell className="text-right">{invoice.totalAmount}</TableCell>
-                    </TableRow>
-                ))}
-            </TableBody>
-            <TableFooter>
-                <TableRow>
-                    <TableCell colSpan={3}>Total</TableCell>
-                    <TableCell className="text-right">$2,500.00</TableCell>
-                </TableRow>
-            </TableFooter>
-        </Table>
-    );
+    return <Table>
+        <TableCaption>A list of your all Category.</TableCaption>
+        <TableHeader>
+            <TableRow>
+                <TableHead className="w-[100px]">#SL</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead >Shop</TableHead>
+                <TableHead >Avatar</TableHead>
+                <TableHead >Action</TableHead>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            {res.data?.map((d: ICategoryType, i: number) => <TableRow key={Math.random() * i}>
+                <TableCell className="font-medium">{(i + 1).toString().padStart(3, '0')}</TableCell>
+                <TableCell >{d.name}</TableCell>
+                <TableCell >{d.shopId.name}</TableCell>
+                <TableCell>
+                    <Avatar>
+                        <AvatarImage src={`${BASE_URL}/file/${d.avatar}`} alt="@shadcn" />
+                        <AvatarFallback>{d.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                </TableCell>
+                <TableCell className='flex space-x-2'>
+                    <TrashIcon className='text-gray-400  cursor-pointer transition-all hover:text-red-500' height={28} width={28} />
+                    <Pencil2Icon className='text-gray-400  cursor-pointer transition-all hover:text-blue-400' height={25} width={25} />
+                </TableCell>
+            </TableRow>)}
+        </TableBody>
+    </Table>;
 }

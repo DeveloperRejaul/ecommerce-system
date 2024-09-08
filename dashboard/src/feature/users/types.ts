@@ -1,3 +1,5 @@
+import { IShopTypes } from "../shop/types";
+
 export interface IUsersData {
     address: string;
     avatar: string
@@ -7,4 +9,5 @@ export interface IUsersData {
     role: string
     updatedAt: string
     _id: string
+    shopId: IShopTypes
 }

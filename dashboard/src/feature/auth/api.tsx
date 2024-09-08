@@ -7,7 +7,7 @@ import { addUser } from '../users/userSlice';
 
 
 interface IUserDataType {
-    _id: string, email: string, name: string, address: string, avatar: string, role: string
+    _id: string, email: string, name: string, address: string, avatar: string, role: string, shopId: string
 }
 
 export const authApi = api.injectEndpoints({
@@ -25,8 +25,8 @@ export const authApi = api.injectEndpoints({
                 };
             },
             transformResponse(baseQueryReturnValue: IUserDataType) {
-                const { _id, email, name, address, avatar, role } = baseQueryReturnValue;
-                return { id: _id, email, name, address, avatar, role };
+                const { _id, email, name, address, avatar, role, shopId } = baseQueryReturnValue;
+                return { id: _id, email, name, address, avatar, role, shopId };
             },
             async onQueryStarted(_, { queryFulfilled, dispatch }) {
                 try {
@@ -47,8 +47,8 @@ export const authApi = api.injectEndpoints({
         checkValidUser: builder.query({
             query: () => '/user/check',
             transformResponse(baseQueryReturnValue: IUserDataType) {
-                const { _id, email, name, address, avatar, role } = baseQueryReturnValue;
-                return { id: _id, email, name, address, avatar, role };
+                const { _id, email, name, address, avatar, role, shopId } = baseQueryReturnValue;
+                return { id: _id, email, name, address, avatar, role, shopId };
             },
             async onQueryStarted(_, { queryFulfilled, dispatch }) {
                 try {

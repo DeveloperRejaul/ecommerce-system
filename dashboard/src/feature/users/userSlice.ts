@@ -7,6 +7,7 @@ export interface userState {
   address: string;
   avatar: string;
   role: string;
+  shopId: string;
 }
 
 const initialState = {
@@ -16,6 +17,7 @@ const initialState = {
   address: "",
   avatar: "",
   role: "",
+  shopId: ""
 } satisfies userState as userState;
 
 const userSlice = createSlice({
@@ -29,6 +31,7 @@ const userSlice = createSlice({
       state.address = action.payload.address;
       state.avatar = action.payload.avatar;
       state.role = action.payload.role;
+      state.shopId = action.payload.shopId;
     },
     updateUser(state, action: PayloadAction<userState>) {
       state = { ...state, ...action.payload };

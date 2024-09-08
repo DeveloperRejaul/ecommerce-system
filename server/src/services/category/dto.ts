@@ -9,6 +9,8 @@ export class CreateCategoryDto {
 
     @IsNotEmpty()
     shopId: Types.ObjectId;
+
+    avatar: string;
 }
 
 

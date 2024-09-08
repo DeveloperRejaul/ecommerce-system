@@ -35,7 +35,7 @@ export default function Owner() {
                             <AvatarFallback>{d.name.slice(0, 2).toUpperCase()}</AvatarFallback>
                         </Avatar>
                     </TableCell>
-                    <TableCell>{'---'}</TableCell>
+                    <TableCell>{d.shopId?.name || '---'}</TableCell>
                     <TableCell className='flex space-x-2'>
                         <TrashIcon className='text-gray-400  cursor-pointer transition-all hover:text-red-500' height={28} width={28} />
                         <Pencil2Icon className='text-gray-400  cursor-pointer transition-all hover:text-blue-400' height={25} width={25} />

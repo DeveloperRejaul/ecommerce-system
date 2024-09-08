@@ -166,6 +166,7 @@ export default function CreateUser() {
                                 </FormControl>
                                 <SelectContent>
                                     <ScrollArea className="h-[200px] rounded-md border-t p-4">
+                                        <Input type="search" id="search" placeholder="Search..." />
                                         {data?.map((d: IShopTypes, i: number) => <SelectItem key={Math.random() * i} value={d._id}>{d.name}</SelectItem>)}
                                     </ScrollArea>
                                 </SelectContent>

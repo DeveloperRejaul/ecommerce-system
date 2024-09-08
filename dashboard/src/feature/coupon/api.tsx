@@ -1,34 +1,34 @@
-import { ToastAction } from "@/components/ui/toast";
-import { toast } from "@/hooks/use-toast";
-import { api } from "@/rtk/api";
+import { api } from '@/rtk/api';
+import { toast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 
-export const authApi = api.injectEndpoints({
+export const couponApi = api.injectEndpoints({
     overrideExisting: true,
     endpoints: (builder) => ({
-        getAllCategory: builder.query({
+        getCoupon: builder.query({
             query: () => ({
-                method: "GET",
-                url: '/category',
+                method: 'GET',
+                url: '/coupon',
             }),
         }),
-        createCategory: builder.mutation({
+        createCoupon: builder.mutation({
             query: (data) => ({
-                method: "POST",
-                url: '/category',
-                body: data,
+                method: 'POST',
+                url: '/coupon',
+                body: data
             }),
             async onQueryStarted(_, { queryFulfilled }) {
                 try {
                     await queryFulfilled;
                     toast({
                         title: 'Create Success!',
-                        description: "Category Create Successfully",
+                        description: "Coupon Create Successfully",
                         action: <ToastAction altText="Goto schedule to undo"> Undo </ToastAction>
                     });
                 } catch {
                     toast({
                         title: 'Create Failed!',
-                        description: "Category Create failed",
+                        description: "Coupon Create failed",
                         action: <ToastAction altText="Goto schedule to undo"> Undo </ToastAction>
                     });
                 }
@@ -36,7 +36,5 @@ export const authApi = api.injectEndpoints({
         })
     }),
 });
-export const {
-    useGetAllCategoryQuery,
-    useCreateCategoryMutation,
-} = authApi;
+
+export const { useGetCouponQuery, useCreateCouponMutation } = couponApi;

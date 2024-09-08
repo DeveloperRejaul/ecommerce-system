@@ -14,6 +14,9 @@ export class Category extends Document {
 
   @Prop({ type: Types.ObjectId, required: true, ref: 'Shop' })
   shopId: string;
+
+  @Prop({ type: String, required: true })
+  avatar: string;
 }
 
 // Create a compound index to enforce unique 'name' within the same 'shopId'
