@@ -2,6 +2,7 @@ import { DialogCom } from '@/components/dialog';
 import { SheetCom } from '@/components/sheet';
 import { Input } from '@/components/ui/input';
 import DialogContent from '@/feature/category/dialogContent';
+import CreateShop from '@/feature/shop/create-shop';
 import CreateUser from '@/feature/users/create-user';
 import { useLocation } from 'react-router-dom';
 
@@ -9,7 +10,8 @@ import { useLocation } from 'react-router-dom';
 export default function Header() {
   const { pathname } = useLocation();
   const components: { [key: string]: JSX.Element } = {
-    '/user': <CreateUser />
+    '/user': <CreateUser />,
+    '/shop': <CreateShop />
   };
 
   return (
