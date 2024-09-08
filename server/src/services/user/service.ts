@@ -21,7 +21,7 @@ export class UserService {
     @InjectModel(Shop.name) private shopModel: Model<Shop>,
     private readonly mailService: MailerService,
     private jwtService: JwtService
-  ) {}
+  ) { }
 
   /**
    * @description this function using for create user
@@ -100,23 +100,21 @@ export class UserService {
    * @returns create user object
    */
   async Vip(user: IUserTypes, file: IFileType, auth: AuthBody) {
+    console.log(user);
+    console.log(file);
+    console.log(auth);
+
     user.password = await bcrypt.hash(user.password, 10);
 
-    if (user.role === OWNER && auth.role === OWNER) {
+    // handle owner role
+    if (auth.role === OWNER) {
       if (file) user.avatar = await saveFile(file);
       return await this.model.create(user);
     }
 
-    if (auth.role === OWNER && user.role === SUPER_ADMIN) {
-      if (file) user.avatar = await saveFile(file);
-      const newUser = await this.model.create(user);
-      if (user.role === SUPER_ADMIN) await this.shopModel.findByIdAndUpdate( user.shopId,{ userId: newUser._id }, { new: true }).exec();
-      return newUser;
-    }
-
     // handle super admin activity
     if (auth.role === SUPER_ADMIN) {
-      if ( roleAvailable([ADMIN, MODERATOR], user.role) &&user.shopId === user.shopId) {
+      if (roleAvailable([ADMIN, MODERATOR, USER], user.role) && user.shopId === user.shopId) {
         if (file) user.avatar = await saveFile(file);
         return await this.model.create(user);
       }
@@ -124,14 +122,23 @@ export class UserService {
 
     // handle admin activity
     if (auth.role === ADMIN) {
-      if (roleAvailable([MODERATOR], user.role) && user.shopId === user.shopId) {
+      if (roleAvailable([MODERATOR, USER], user.role) && user.shopId === user.shopId) {
         if (file) user.avatar = await saveFile(file);
         return await this.model.create(user);
       }
     }
 
-    // Handle user role
-    if (user.role === USER) throw new HttpException('Bad Request ', HttpStatus.BAD_REQUEST);
+    // Handle moderator role
+    if (auth.role === MODERATOR) {
+      if (roleAvailable([USER], user.role) && user.shopId === user.shopId) {
+        if (file) user.avatar = await saveFile(file);
+        return await this.model.create(user);
+      }
+    }
+
+    // handle user role
+    if (auth.role === USER) throw new HttpException('Bad request ', HttpStatus.BAD_REQUEST);
+
     throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
   }
 
