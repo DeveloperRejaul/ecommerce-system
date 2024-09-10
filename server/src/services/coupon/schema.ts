@@ -17,8 +17,17 @@ export class Coupon extends Document {
   @Prop({ type: Number, required: true })
   value: number;
 
-  @Prop({ type: Number, required: true })
-  time: number;
+  @Prop({
+    type: {
+      from: { type: Date, required: true },
+      to: { type: Date, required: true },
+    },
+    required: true,
+  })
+  time: {
+    from: Date;
+    to: Date;
+  };
 
   @Prop({ type: Number, required: true })
   quantity: number;
@@ -26,7 +35,7 @@ export class Coupon extends Document {
   @Prop({ type: [Types.ObjectId], ref: 'user' })
   userId: Types.ObjectId[];
 
-  @Prop({ type: Types.ObjectId, required: true, ref: 'shop' })
+  @Prop({ type: Types.ObjectId, required: true, ref: 'Shop' })
   shopId: Types.ObjectId;
 }
 

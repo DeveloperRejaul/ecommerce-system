@@ -6,11 +6,11 @@ import { AuthService } from '../auth/service';
 import { Coupon, CouponSchema } from './schema';
 import { CouponController } from './controller';
 import { CouponService } from './service';
+import { Shop, ShopSchema } from '../shop/schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Coupon.name, schema: CouponSchema }]),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: Coupon.name, schema: CouponSchema }, { name: User.name, schema: UserSchema }, { name: Shop.name, schema: ShopSchema }]),
   ],
   controllers: [CouponController, AuthController],
   providers: [CouponService, AuthService],

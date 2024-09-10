@@ -17,7 +17,7 @@ export default function Shop() {
                 <TableHead>Email</TableHead>
                 <TableHead>Address</TableHead>
                 <TableHead >Avatar</TableHead>
-                <TableHead >Action</TableHead>
+                <TableHead className='text-right'>Action</TableHead>
             </TableRow>
         </TableHeader>
         <TableBody>
@@ -32,7 +32,7 @@ export default function Shop() {
                         <AvatarFallback>{d.name.slice(0, 2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                 </TableCell>
-                <TableCell className='flex space-x-2'>
+                <TableCell className='flex space-x-2 justify-end'>
                     <TrashIcon className='text-gray-400  cursor-pointer transition-all hover:text-red-500' height={28} width={28} />
                     <Pencil2Icon className='text-gray-400  cursor-pointer transition-all hover:text-blue-400' height={25} width={25} />
                 </TableCell>

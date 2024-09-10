@@ -13,20 +13,21 @@ export class CouponService {
   constructor(
     @InjectModel(Coupon.name) private model: Model<Coupon>
   ) { }
+
   async createCoupon(body: CreateCouponDto, auth: AuthBody) {
     const { role, shopId } = auth;
     if (role === UserRole.OWNER) return await this.model.create(body);
-    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) {
-      if (body.shopId === shopId) return await this.model.create(body);
-    }
+
+    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role) && body.shopId === shopId) return await this.model.create(body);
+
     throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
   }
 
 
   async getCoupon(auth: AuthBody) {
     const { role, shopId } = auth;
-    if (role === UserRole.OWNER) return await this.model.find();
-    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) return await this.model.find({ shopId });
+    if (role === UserRole.OWNER) return await this.model.find().populate('shopId').exec();
+    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) return await this.model.find({ shopId }).populate('shopId').exec();
     throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
   }
 

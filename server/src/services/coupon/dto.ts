@@ -1,7 +1,16 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsEnum, IsNotEmpty, IsNumber, MinLength, } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsEnum, IsNotEmpty, IsNumber, MinLength, IsISO8601, ValidateNested } from 'class-validator';
 import { IsLessThan100ForPercent } from 'src/utils/validator';
+export class TimePeriodDto {
+  @IsNotEmpty()
+  @IsISO8601()
+  from: string;
 
+  @IsNotEmpty()
+  @IsISO8601()
+  to: string;
+}
 
 export class CreateCouponDto {
 
@@ -19,8 +28,9 @@ export class CreateCouponDto {
   value: number;
 
   @IsNotEmpty()
-  @IsNumber()
-  time: number;
+  @ValidateNested()
+  @Type(() => TimePeriodDto)
+  time: TimePeriodDto;
 
   @IsNotEmpty()
   @IsNumber()

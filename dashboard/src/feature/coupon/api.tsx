@@ -12,11 +12,13 @@ export const couponApi = api.injectEndpoints({
             }),
         }),
         createCoupon: builder.mutation({
-            query: (data) => ({
-                method: 'POST',
-                url: '/coupon',
-                body: data
-            }),
+            query: (data) => {
+                return {
+                    method: 'POST',
+                    url: '/coupon',
+                    body: data
+                };
+            },
             async onQueryStarted(_, { queryFulfilled }) {
                 try {
                     await queryFulfilled;
