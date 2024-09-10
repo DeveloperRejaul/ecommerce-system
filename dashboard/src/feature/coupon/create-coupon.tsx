@@ -10,7 +10,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { CalendarIcon } from '@radix-ui/react-icons';
 import { Calendar } from '@/components/ui/calendar';
 import { useState } from 'react';
 import { addDays, format } from "date-fns";
@@ -22,6 +21,7 @@ import { UserRole } from '@/constant/constant';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useGetShopQuery } from '../shop/api';
 import { IShopTypes } from '../shop/types';
+import { CalendarIcon } from 'lucide-react';
 
 
 export default function CreateCoupon() {
@@ -50,7 +50,7 @@ export default function CreateCoupon() {
 
     return <Form {...form}>
         <DialogHeader>
-            <DialogTitle>Create Shop</DialogTitle>
+            <DialogTitle>Create Coupon</DialogTitle>
             <DialogDescription>
                 Create Coupon. Click Create when you're done.
             </DialogDescription>

@@ -1,7 +1,6 @@
 import { useGetCouponQuery } from './api';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Pencil2Icon } from '@radix-ui/react-icons';
-import { TrashIcon } from 'lucide-react';
+import { SquarePen, TrashIcon } from 'lucide-react';
 import { ICouponTypes } from './types';
 import { useAppSelector } from '@/hooks/rtk';
 import { BASE_URL, UserRole } from '@/constant/constant';
@@ -42,7 +41,7 @@ export default function Coupon() {
                 </TableCell>}
                 <TableCell className='flex space-x-2 justify-end'>
                     <TrashIcon className='text-gray-400  cursor-pointer transition-all hover:text-red-500' height={28} width={28} />
-                    <Pencil2Icon className='text-gray-400  cursor-pointer transition-all hover:text-blue-400' height={25} width={25} />
+                    <SquarePen className='text-gray-400  cursor-pointer transition-all hover:text-blue-400' height={25} width={25} />
                 </TableCell>
             </TableRow>)}
         </TableBody>

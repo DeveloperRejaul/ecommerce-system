@@ -1,9 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { BASE_URL } from '@/constant/constant';
-import { Pencil2Icon, TrashIcon } from '@radix-ui/react-icons';
 import { useGetAllCategoryQuery } from './api';
 import { ICategoryType } from './types';
+import { SquarePen, TrashIcon } from 'lucide-react';
 
 export default function category() {
     const res = useGetAllCategoryQuery(undefined);
@@ -32,7 +32,7 @@ export default function category() {
                 </TableCell>
                 <TableCell className='flex space-x-2 justify-end'>
                     <TrashIcon className='text-gray-400  cursor-pointer transition-all hover:text-red-500' height={28} width={28} />
-                    <Pencil2Icon className='text-gray-400  cursor-pointer transition-all hover:text-blue-400' height={25} width={25} />
+                    <SquarePen className='text-gray-400  cursor-pointer transition-all hover:text-blue-400' height={25} width={25} />
                 </TableCell>
             </TableRow>)}
         </TableBody>
