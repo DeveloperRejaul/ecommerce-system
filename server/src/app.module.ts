@@ -15,8 +15,9 @@ import { RatingModule } from './services/rating/module';
 import { OrderModule } from './services/order/module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
+import { BrandModule } from './services/brand/module';
 
- 
+
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: ['.env'], isGlobal: true }),
@@ -41,7 +42,8 @@ import { join } from 'node:path';
     CouponModule,
     ProductModule,
     RatingModule,
-    OrderModule
+    OrderModule,
+    BrandModule
   ],
   controllers: [AppController],
 })

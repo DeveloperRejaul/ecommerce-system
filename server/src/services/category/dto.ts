@@ -1,9 +1,10 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsNotEmpty, MinLength, } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength, } from 'class-validator';
 import { Types } from 'mongoose';
 
 export class CreateCategoryDto {
     @IsNotEmpty()
+    @IsString()
     @MinLength(5)
     name: string;
 
