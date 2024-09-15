@@ -12,19 +12,31 @@ import { useAppSelector } from "@/hooks/rtk";
 import { useGetShopQuery } from "../shop/api";
 import { IShopTypes } from "../shop/types";
 import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
+import ImgPacker from "./img-packer";
+import { UserRole } from "@/constant/constant";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formSchema } from "./schema";
 
 export default function CreateProduct() {
     const category = useGetAllCategoryQuery(undefined);
     const shops = useGetShopQuery(undefined);
     const role = useAppSelector(state => state.user.role);
+    const shop = useAppSelector(state => state.user.shopId);
+
     const colors: string[] = [];
     const sizes: string[] = [];
-    const form = useForm();
+    const files: File[] = [];
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {},
+    });
 
 
-    const onSubmit = (data) => {
+    const onSubmit = (data: z.infer<typeof formSchema>) => {
+        const shopId = role === UserRole.OWNER ? data.shopId : shop;
         console.log(data);
+
     };
 
     return (
@@ -118,7 +130,7 @@ export default function CreateProduct() {
                         )} />
 
                     {/* handle Shop id  */}
-                    {<FormField
+                    {role === UserRole.OWNER && <FormField
                         control={form.control}
                         name="shopId"
                         render={({ field }) => (
@@ -136,8 +148,8 @@ export default function CreateProduct() {
                                 </Select>
                                 <FormMessage />
                             </FormItem>
-                        )} />}
-
+                        )} />
+                    }
 
                     {/* Brand select part */}
                     {<FormField
@@ -185,23 +197,10 @@ export default function CreateProduct() {
                     {/* Product Images */}
                     <div className="space-y-2">
                         <Label>Product Images</Label>
-                        <div className="flex space-x-3">
-                            <div className="border border-dotted w-[10rem] h-[10rem] flex justify-center items-center">
-                                <Plus className="cursor-pointer font-bold ml-1 text-gray-400" size='3rem' />
-                            </div>
-                            <div className="border border-dotted w-[10rem] h-[10rem] flex justify-center items-center">
-                                <Plus className="cursor-pointer font-bold ml-1 text-gray-400" size='3rem' />
-                            </div>
-                            <div className="border border-dotted w-[10rem] h-[10rem] flex justify-center items-center">
-                                <Plus className="cursor-pointer font-bold ml-1 text-gray-400" size='3rem' />
-                            </div>
-                            <div className="border border-dotted w-[10rem] h-[10rem] flex justify-center items-center">
-                                <Plus className="cursor-pointer font-bold ml-1 text-gray-400" size='3rem' />
-                            </div>
-                            <div className="border border-dotted w-[10rem] h-[10rem] flex justify-center items-center">
-                                <Plus className="cursor-pointer font-bold ml-1 text-gray-400" size='3rem' />
-                            </div>
-                        </div>
+                        <ImgPacker
+                            addFile={(file) => { files.push(file); }}
+                            removeFile={(file) => colors.splice(files.indexOf(file), 1)}
+                        />
                     </div>
                     {/* handle color */}
                     <ColorsPacker
