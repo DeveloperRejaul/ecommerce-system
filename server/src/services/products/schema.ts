@@ -18,6 +18,9 @@ export class Product extends Document {
   id: string;
 
   @Prop({ type: String, required: true })
+  name: string;
+
+  @Prop({ type: String, required: true })
   title: string;
 
   @Prop({ type: [String] })

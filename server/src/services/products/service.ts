@@ -42,8 +42,8 @@ export class ProductService {
 
   async getAllProduct(auth: AuthBody) {
     const { role, shopId } = auth;
-    if (role === UserRole.OWNER) return this.model.find();
-    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) return this.model.find({ shopId });
+    if (role === UserRole.OWNER) return this.model.find().select('-userId -couponId').populate('shopId').populate('categoryId').populate('brandId');
+    if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) return this.model.find({ shopId }).select('-userId -couponId').populate('categoryId').populate('brandId');
     throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
   };
 

@@ -12,6 +12,7 @@ import CreateProduct from '@/feature/product/create-product';
 import Ratting from '@/feature/ratting/ratting';
 import Brand from '@/feature/brand/brand';
 import Protected from '@/router/protected';
+import ProductDetails from '@/feature/product/details';
 
 
 export const path = {
@@ -56,6 +57,10 @@ export const router = createBrowserRouter([
       {
         path: path.PRODUCT,
         element: <Product />,
+      },
+      {
+        path: `${path.PRODUCT}/:id`,
+        element: <ProductDetails />
       },
       {
         path: path.CREATE_PRODUCT,
