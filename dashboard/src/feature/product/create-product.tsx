@@ -1,0 +1,226 @@
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
+import { useGetAllCategoryQuery } from "../category/api";
+import { ICategoryType } from "../category/types";
+import { Button } from "@/components/ui/button";
+import ColorsPacker from "./color-packer";
+import SizesPacker from "./size-packer";
+import { useAppSelector } from "@/hooks/rtk";
+import { useGetShopQuery } from "../shop/api";
+import { IShopTypes } from "../shop/types";
+import { Label } from "@/components/ui/label";
+import { Plus } from "lucide-react";
+
+export default function CreateProduct() {
+    const category = useGetAllCategoryQuery(undefined);
+    const shops = useGetShopQuery(undefined);
+    const role = useAppSelector(state => state.user.role);
+    const colors: string[] = [];
+    const sizes: string[] = [];
+    const form = useForm();
+
+
+    const onSubmit = (data) => {
+        console.log(data);
+    };
+
+    return (
+        <div className="flex flex-1 flex-col px-2 ">
+            <h1 className="text-2xl">Create Product</h1>
+            <Form {...form}>
+                {/* {} */}
+                <form className="grid gap-y-4 lg:gap-x-6 lg:grid-cols-2" onSubmit={form.handleSubmit(onSubmit)}>
+                    <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Name</FormLabel>
+                                <FormControl>
+                                    <Input placeholder='Type product name' {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                    <FormField
+                        control={form.control}
+                        name="title"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Title</FormLabel>
+                                <FormControl>
+                                    <Input placeholder='Type product title' {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                    <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Description</FormLabel>
+                                <FormControl>
+                                    <Textarea placeholder='Type product description...' {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+
+                    <FormField
+                        control={form.control}
+                        name="category"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Category</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select Category" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {category.data?.map((d: ICategoryType) => <SelectItem key={d._id} value={d._id}>{d.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="quantity"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Quantity</FormLabel>
+                                <FormControl>
+                                    <Input type="number" placeholder='Type product quantity' {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+
+                    <FormField
+                        control={form.control}
+                        name="buyPrice"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Buy Price</FormLabel>
+                                <FormControl>
+                                    <Input type="number" placeholder='Type product buy price' {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+
+                    {/* handle Shop id  */}
+                    {<FormField
+                        control={form.control}
+                        name="shopId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Shop</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select shop" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {shops.data?.map((d: IShopTypes) => <SelectItem key={d._id} value={d._id}>{d.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )} />}
+
+
+                    {/* Brand select part */}
+                    {<FormField
+                        control={form.control}
+                        name="brandId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Brand</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select Brand" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {shops.data?.map((d: IShopTypes) => <SelectItem key={d._id} value={d._id}>{d.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )} />}
+
+                    {/* profit */}
+                    <FormField
+                        control={form.control}
+                        name="sellPrice"
+                        render={({ field }) => (
+                            <FormItem >
+                                <FormLabel>Profit of Percentage </FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select Percentage" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {new Array(100).fill(0).map((_, i: number) => <SelectItem key={Math.random() * i} value={(i + 1).toString()}>{i + 1}%</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* Product Images */}
+                    <div className="space-y-2">
+                        <Label>Product Images</Label>
+                        <div className="flex space-x-3">
+                            <div className="border border-dotted w-[10rem] h-[10rem] flex justify-center items-center">
+                                <Plus className="cursor-pointer font-bold ml-1 text-gray-400" size='3rem' />
+                            </div>
+                            <div className="border border-dotted w-[10rem] h-[10rem] flex justify-center items-center">
+                                <Plus className="cursor-pointer font-bold ml-1 text-gray-400" size='3rem' />
+                            </div>
+                            <div className="border border-dotted w-[10rem] h-[10rem] flex justify-center items-center">
+                                <Plus className="cursor-pointer font-bold ml-1 text-gray-400" size='3rem' />
+                            </div>
+                            <div className="border border-dotted w-[10rem] h-[10rem] flex justify-center items-center">
+                                <Plus className="cursor-pointer font-bold ml-1 text-gray-400" size='3rem' />
+                            </div>
+                            <div className="border border-dotted w-[10rem] h-[10rem] flex justify-center items-center">
+                                <Plus className="cursor-pointer font-bold ml-1 text-gray-400" size='3rem' />
+                            </div>
+                        </div>
+                    </div>
+                    {/* handle color */}
+                    <ColorsPacker
+                        onAdd={(color) => colors.push(color)}
+                        onRemove={(color) => colors.splice(colors.indexOf(color), 1)}
+                    />
+
+                    {/* handle size part */}
+                    <SizesPacker
+                        onAdd={(name) => sizes.push(name)}
+                        onRemove={(name) => sizes.splice(colors.indexOf(name), 1)}
+                    />
+
+                    <Button type="submit">Create Product</Button>
+
+                </form>
+            </Form>
+        </div>
+    );
+}
+
+

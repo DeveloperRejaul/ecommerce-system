@@ -1,6 +1,15 @@
 import { UserRole } from '@/constant/constant';
 import { useAppSelector } from '@/hooks/rtk';
 import { NavLink } from 'react-router-dom';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { path } from './router';
+
+
 
 export default function SideBar() {
   const userRole = useAppSelector(state => state.user.role);
@@ -12,44 +21,69 @@ export default function SideBar() {
     <div className="w-[300px] h-[100vh] border-r">
       <div className="h-[100px] flex justify-center items-center "> LOGO </div>
       <div className='space-y-4'>
-        <NavLink className={({ isActive }) => isActive ? activeClass : inActiveClass} to={'/'} end >
+        <NavLink className={({ isActive }) => isActive ? activeClass : inActiveClass} to={'/'} end={false} >
           Home
         </NavLink>
         {userRole === UserRole.OWNER && <NavLink
           className={({ isActive }) => isActive ? activeClass : inActiveClass}
           to='/shop'
-          end >
+          end={false} >
           Shop
         </NavLink>}
         <NavLink
           className={({ isActive }) => isActive ? activeClass : inActiveClass}
           to='/category'
-          end >
+          end={false} >
           Category
         </NavLink>
         <NavLink
           className={({ isActive }) => isActive ? activeClass : inActiveClass}
           to='/order'
-          end >
+          end={false} >
           Order
         </NavLink>
-        <NavLink
-          className={({ isActive }) => isActive ? activeClass : inActiveClass}
-          to='/product'
-          end >
-          Product
-        </NavLink>
+        <Accordion type="single" collapsible className='text-xl font-medium mx-5'>
+          <AccordionItem value='items-91'>
+            <AccordionTrigger className='p-2 [&[data-state=open]]:bg-muted'>Product</AccordionTrigger>
+            <AccordionContent className='space-y-2 mt-4 border-l'>
+              <NavLink
+                className={({ isActive }) => isActive ? activeClass : inActiveClass}
+                to={path.CREATE_PRODUCT}
+                end={false} >
+                Create Product
+              </NavLink>
+              <NavLink
+                className={({ isActive }) => isActive ? activeClass : inActiveClass}
+                to={path.PRODUCT}
+                end={false} >
+                Product List
+              </NavLink>
+              <NavLink
+                className={({ isActive }) => isActive ? activeClass : inActiveClass}
+                to='/user'
+                end={false} >
+                Ratting
+              </NavLink>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
         <NavLink
           className={({ isActive }) => isActive ? activeClass : inActiveClass}
           to='/coupon'
-          end >
+          end={false} >
           Coupon
         </NavLink>
         <NavLink
           className={({ isActive }) => isActive ? activeClass : inActiveClass}
           to='/user'
-          end >
+          end={false} >
           User
+        </NavLink>
+        <NavLink
+          className={({ isActive }) => isActive ? activeClass : inActiveClass}
+          to='/user'
+          end={false} >
+          Brand
         </NavLink>
       </div>
     </div>

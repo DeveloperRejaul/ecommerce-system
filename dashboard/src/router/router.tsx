@@ -1,21 +1,70 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-
 import { createBrowserRouter } from 'react-router-dom';
-import { homeCom, paths, rootCom } from '@/constant/route';
+import Home from '@/feature/home/home';
+import Category from '@/feature/category/category';
+import Order from '@/feature/order/order';
+import User from '@/feature/users';
+import Coupon from '@/feature/coupon/coupon';
+import Product from '@/feature/product/product';
+import Shop from '@/feature/shop/shop';
+import Main from '@/router/main';
+import Login from '@/feature/auth/login';
+import CreateProduct from '@/feature/product/create-product';
+// import Protected from '@/router/protected';
 
 
-const child = {
-  '/': paths.home.map((pt, i) => ({
-    path: pt,
-    element:  homeCom[i]
-  }))
+export const path = {
+  ROOT: "/",
+  LOGIN: "/auth/login",
+  CATEGORY: '/category',
+  ORDER: '/order',
+  USER: '/user',
+  COUPON: '/coupon',
+  PRODUCT: '/product',
+  CREATE_PRODUCT: '/create-product',
+  SHOP: '/shop'
 };
 
-const routes = paths.root.map((pt, i) => ({
-  path: pt,
-  element: rootCom[i],
-  //@ts-ignore
-  children:  child[pt]
-}));
-
-export const router = createBrowserRouter(routes);
+export const router = createBrowserRouter([
+  {
+    path: path.ROOT,
+    element: <Main />,
+    children: [
+      {
+        path: path.ROOT,
+        element: <Home />
+      },
+      {
+        path: path.CATEGORY,
+        element: <Category />
+      },
+      {
+        path: path.COUPON,
+        element: <Coupon />
+      },
+      {
+        path: path.SHOP,
+        element: <Shop />
+      },
+      {
+        path: path.USER,
+        element: <User />
+      },
+      {
+        path: path.PRODUCT,
+        element: <Product />,
+      },
+      {
+        path: path.CREATE_PRODUCT,
+        element: <CreateProduct />
+      },
+      {
+        path: path.ORDER,
+        element: <Order />
+      }
+    ]
+  },
+  {
+    path: path.LOGIN,
+    element: <Login />
+  }
+]);

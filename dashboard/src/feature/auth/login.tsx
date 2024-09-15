@@ -7,9 +7,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { BtnLoading } from '@/components/loading';
 import { useAppSelector } from '@/hooks/rtk';
 import { Navigate } from 'react-router-dom';
-import { paths } from '@/constant/route';
 import { formSchema } from './loginSchema';
 import { z } from 'zod';
+import { path } from '@/router/router';
 
 export default function Login() {
   const [handleLogin, response] = useLoginMutation();
@@ -21,7 +21,7 @@ export default function Login() {
   });
 
   // handle the login success
-  if (isLogin) return <Navigate to={paths.home[0]} />;
+  if (isLogin) return <Navigate to={path.ROOT} />;
 
   return (
     <Form {...form}>
