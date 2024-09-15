@@ -60,7 +60,7 @@ export default function SideBar() {
               </NavLink>
               <NavLink
                 className={({ isActive }) => isActive ? activeClass : inActiveClass}
-                to='/user'
+                to={path.RATTING}
                 end={false} >
                 Ratting
               </NavLink>
@@ -69,19 +69,19 @@ export default function SideBar() {
         </Accordion>
         <NavLink
           className={({ isActive }) => isActive ? activeClass : inActiveClass}
-          to='/coupon'
+          to={path.COUPON}
           end={false} >
           Coupon
         </NavLink>
         <NavLink
           className={({ isActive }) => isActive ? activeClass : inActiveClass}
-          to='/user'
+          to={path.USER}
           end={false} >
           User
         </NavLink>
         <NavLink
           className={({ isActive }) => isActive ? activeClass : inActiveClass}
-          to='/user'
+          to={path.BRAND}
           end={false} >
           Brand
         </NavLink>

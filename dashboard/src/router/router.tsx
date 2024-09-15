@@ -9,7 +9,9 @@ import Shop from '@/feature/shop/shop';
 import Main from '@/router/main';
 import Login from '@/feature/auth/login';
 import CreateProduct from '@/feature/product/create-product';
-// import Protected from '@/router/protected';
+import Ratting from '@/feature/ratting/ratting';
+import Brand from '@/feature/brand/brand';
+import Protected from '@/router/protected';
 
 
 export const path = {
@@ -21,13 +23,15 @@ export const path = {
   COUPON: '/coupon',
   PRODUCT: '/product',
   CREATE_PRODUCT: '/create-product',
-  SHOP: '/shop'
+  SHOP: '/shop',
+  BRAND: "/brand",
+  RATTING: "/ratting"
 };
 
 export const router = createBrowserRouter([
   {
     path: path.ROOT,
-    element: <Main />,
+    element: <Protected>  <Main /> </Protected>,
     children: [
       {
         path: path.ROOT,
@@ -60,6 +64,14 @@ export const router = createBrowserRouter([
       {
         path: path.ORDER,
         element: <Order />
+      },
+      {
+        path: path.RATTING,
+        element: <Ratting />
+      },
+      {
+        path: path.BRAND,
+        element: <Brand />
       }
     ]
   },

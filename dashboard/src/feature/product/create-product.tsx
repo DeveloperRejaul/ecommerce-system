@@ -17,16 +17,24 @@ import { UserRole } from "@/constant/constant";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "./schema";
+import { useGetAllBrandQuery } from "../brand/api";
+import { useCreateProductMutation } from "./api";
+import { useGetCouponQuery } from "../coupon/api";
+
+const colors: string[] = [];
+let sizes: { [key: string]: number } = {};
+const files: File[] = [];
 
 export default function CreateProduct() {
     const category = useGetAllCategoryQuery(undefined);
     const shops = useGetShopQuery(undefined);
+    const brand = useGetAllBrandQuery(undefined);
+    const coupon = useGetCouponQuery(undefined);
+    const [createProduct, productRes] = useCreateProductMutation();
+
     const role = useAppSelector(state => state.user.role);
     const shop = useAppSelector(state => state.user.shopId);
 
-    const colors: string[] = [];
-    const sizes: string[] = [];
-    const files: File[] = [];
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {},
@@ -35,15 +43,45 @@ export default function CreateProduct() {
 
     const onSubmit = (data: z.infer<typeof formSchema>) => {
         const shopId = role === UserRole.OWNER ? data.shopId : shop;
-        console.log(data);
+        const formData = new FormData();
+        formData.append('name', data.name);
+        formData.append('title', data.title);
+        formData.append('description', data.description);
+        formData.append('buyPrice', data.buyPrice);
+        formData.append('quantity', data.quantity);
 
+        formData.append('size', JSON.stringify(sizes));
+        formData.append('color', JSON.stringify(colors));
+
+        // all ids 
+        formData.append('categoryId', data.category);
+        formData.append('brandId', data.brandId);
+        if (data?.couponId) formData.append('couponId', data.couponId);
+        if (shopId) formData.append('shopId', shopId);
+
+        // image file added 
+        files.forEach(file => {
+            formData.append('images', file);
+        });
+
+        // calculate sell price 
+        const buy = +data.buyPrice;
+        const sell = +data.sellPrice;
+        const percentage = buy * (sell / 100);
+        const total = buy + percentage;
+        formData.append('sellPrice', total.toString());
+
+        // calling api 
+        createProduct(formData);
+
+        // reset form 
+        form.reset();
     };
 
     return (
         <div className="flex flex-1 flex-col px-2 ">
             <h1 className="text-2xl">Create Product</h1>
             <Form {...form}>
-                {/* {} */}
                 <form className="grid gap-y-4 lg:gap-x-6 lg:grid-cols-2" onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField
                         control={form.control}
@@ -130,7 +168,7 @@ export default function CreateProduct() {
                         )} />
 
                     {/* handle Shop id  */}
-                    {role === UserRole.OWNER && <FormField
+                    {role === UserRole.OWNER ? <FormField
                         control={form.control}
                         name="shopId"
                         render={({ field }) => (
@@ -149,10 +187,34 @@ export default function CreateProduct() {
                                 <FormMessage />
                             </FormItem>
                         )} />
+                        :
+                        <div />
                     }
 
+                    {/* Coupon Id  */}
+                    <FormField
+                        control={form.control}
+                        name="couponId"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Coupon (optional)</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select CouponId" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {coupon.data?.map((d: IShopTypes) => <SelectItem key={d._id} value={d._id}>{d.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+
+
                     {/* Brand select part */}
-                    {<FormField
+                    <FormField
                         control={form.control}
                         name="brandId"
                         render={({ field }) => (
@@ -165,12 +227,12 @@ export default function CreateProduct() {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {shops.data?.map((d: IShopTypes) => <SelectItem key={d._id} value={d._id}>{d.name}</SelectItem>)}
+                                        {brand.data?.map((d: IShopTypes) => <SelectItem key={d._id} value={d._id}>{d.name}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
                             </FormItem>
-                        )} />}
+                        )} />
 
                     {/* profit */}
                     <FormField
@@ -209,10 +271,7 @@ export default function CreateProduct() {
                     />
 
                     {/* handle size part */}
-                    <SizesPacker
-                        onAdd={(name) => sizes.push(name)}
-                        onRemove={(name) => sizes.splice(colors.indexOf(name), 1)}
-                    />
+                    <SizesPacker onChange={(si) => sizes = si} />
 
                     <Button type="submit">Create Product</Button>
 

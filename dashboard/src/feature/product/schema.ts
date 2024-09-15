@@ -7,6 +7,8 @@ export const formSchema = z.object({
     category: z.string({ message: "Category must require " }),
     buyPrice: z.string({ message: "Buy price must require " }),
     shopId: z.string().optional(),
+    couponId: z.string().optional(),
     brandId: z.string({ message: "Brand must require " }),
     sellPrice: z.string({ message: "sellPrice must require " }),
+    quantity: z.string()
 });

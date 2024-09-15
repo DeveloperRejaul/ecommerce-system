@@ -29,7 +29,7 @@ export class Product extends Document {
   @Prop({ type: Number, required: true })
   sellPrice: number;
 
-  @Prop({ type: Map, of: Number, enum: ['sm', 'md', 'lg', 'xl', '2xl', '3xl'], required: true, default: {} })
+  @Prop({ type: Map, of: Number, enum: ['s', 'm', 'l', 'xl', '2xl', '3xl'], required: true, default: {} })
   size: SizeType;
 
   @Prop({ type: [String], required: true, default: [] })
@@ -44,18 +44,20 @@ export class Product extends Document {
   @Prop({ type: Number })
   rating: number;
 
-  @Prop({ type: Types.ObjectId, required: true, ref: 'category' })
+  @Prop({ type: Types.ObjectId, required: true, ref: 'Category' })
   categoryId: Types.ObjectId;
 
-  @Prop({ type: [Types.ObjectId], ref: 'coupon' })
+  @Prop({ type: [Types.ObjectId], ref: 'Coupon' })
   couponId: Types.ObjectId[];
 
-  @Prop({ type: [Types.ObjectId], ref: 'user' }) // this field for buyers
+  @Prop({ type: [Types.ObjectId], ref: 'User' }) // this field for buyers
   userId: Types.ObjectId[];
 
-  @Prop({ type: Types.ObjectId, ref: 'shop' }) // this field for buyers
+  @Prop({ type: Types.ObjectId, ref: 'Shop' }) // this field for buyers
   shopId: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: 'Brand' }) // this field for buyers
+  brandId: Types.ObjectId;
 
 }
 

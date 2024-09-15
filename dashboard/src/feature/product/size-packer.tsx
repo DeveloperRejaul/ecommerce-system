@@ -1,5 +1,5 @@
 import { Plus, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -11,34 +11,36 @@ import { Button } from "@/components/ui/button";
 
 
 interface SizesProps {
-    onRemove: (name: string) => void;
-    onAdd: (name: string, num: number) => void;
+    onChange: (sizes: ISizeTypes) => void;
 }
 
-interface SizesType {
-    name: string;
-    number: number;
+interface ISizeTypes {
+    [key: string]: number;
 }
 
+export default function SizesPacker({ onChange }: SizesProps) {
+    const [sizes, setSize] = useState<ISizeTypes>({});
 
-export default function SizesPacker({ onAdd, onRemove }: SizesProps) {
-    const [sizes, setSize] = useState<SizesType[]>([]);
+
+    useEffect(() => {
+        onChange(sizes);
+    }, [sizes]);
+
 
     // this function is used for add Size to state array
     const handleSize = (name: string, number: number) => {
-        setSize(prev => {
-            if (prev.find(s => s.name === name)) {
-                return prev;
-            }
-            onAdd(name, +number);
-            return [...prev, { name, number: +number }];
-        });
+        setSize(prev => ({ ...prev, [name]: number }));
     };
 
     // this function is used fro remove Size from state array
     const handleRemove = (name: string) => {
-        onRemove(name);
-        setSize(pre => pre.filter(c => c.name !== name));
+        setSize(prev => {
+            const obj: { [key: string]: number } = {};
+            Object.keys(prev).forEach(key => {
+                if (name !== key) obj[key] = prev[key];
+            });
+            return obj;
+        });
     };
 
 
@@ -46,13 +48,13 @@ export default function SizesPacker({ onAdd, onRemove }: SizesProps) {
         <div>
             <p> Sizes </p>
             <div className="border gap-2 p-2 flex flex-wrap  min-h-16" style={{ marginTop: 4 }}>
-                {sizes.map((d, index) => (
+                {Object.keys(sizes).map((d, index) => (
                     <div key={Math.random() * index} className="bg-muted p-1" style={{ borderRadius: 5 }}>
                         <div className="flex">
-                            <p className="bg-muted">{d.name}</p>
-                            <X className="cursor-pointer font-bold bg-black ml-1 " size={20} onClick={() => handleRemove(d.name)} />
+                            <p className="bg-muted">{d}</p>
+                            <X className="cursor-pointer font-bold bg-black ml-1 " size={20} onClick={() => handleRemove(d)} />
                         </div>
-                        <p className="text-gray-400 font-bold text-sm">{d.number}</p>
+                        <p className="text-gray-400 font-bold text-sm">{sizes[d]}</p>
                     </div>
                 ))}
             </div>
@@ -61,7 +63,7 @@ export default function SizesPacker({ onAdd, onRemove }: SizesProps) {
 
         {/* Add Sizes */}
         <div className="flex flex-wrap gap-4">
-            {["SM", "MD", "LG", "XL", "2XL", "3XL"].map((name, i) => <div key={Math.random() * i} className="bg-muted p-1">
+            {["s", "m", "l", "xl", "2xl", "3xl", '4xl'].map((name, i) => <div key={Math.random() * i} className="bg-muted p-1">
                 <PopUp name={name} handleSize={handleSize} />
             </div>)}
         </div>
