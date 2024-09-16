@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { useAppSelector } from '@/hooks/rtk';
+import { useAppSelector } from '@/core/hooks/rtk';
 import React, { createRef, useState } from 'react';
 import { useCreateShopMutation } from './api';
 import { useForm } from 'react-hook-form';

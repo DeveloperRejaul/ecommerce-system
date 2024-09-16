@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { ToastAction } from '@/components/ui/toast';
-import { toast } from '@/hooks/use-toast';
-import { api } from '@/rtk/api';
+import { toast } from '@/core/hooks/use-toast';
+import { api } from '@/core/rtk/api';
 
 export const usersApi = api.injectEndpoints({
     overrideExisting: true,

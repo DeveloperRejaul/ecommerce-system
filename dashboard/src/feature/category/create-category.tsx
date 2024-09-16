@@ -15,8 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { IShopTypes } from '../shop/types';
 import { useGetShopQuery } from '../shop/api';
-import { useAppSelector } from '@/hooks/rtk';
-import { UserRole } from '@/constant/constant';
+import { useAppSelector } from '@/core/hooks/rtk';
+import { UserRole } from '@/core/constant/constant';
 
 export default function DialogContent() {
     const [createCategory, res] = useCreateCategoryMutation();

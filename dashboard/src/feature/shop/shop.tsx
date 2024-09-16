@@ -2,7 +2,7 @@ import { useGetShopQuery } from './api';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { IShopTypes } from './types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { BASE_URL } from '@/constant/constant';
+import { BASE_URL } from '@/core/constant/constant';
 import { SquarePen, TrashIcon } from 'lucide-react';
 // import { ScrollArea } from '@/components/ui/scroll-area';
 

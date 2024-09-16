@@ -6,12 +6,12 @@ import User from '@/feature/users';
 import Coupon from '@/feature/coupon/coupon';
 import Product from '@/feature/product/product';
 import Shop from '@/feature/shop/shop';
-import Main from '@/router/main';
+import Main from '@/core/router/main';
 import Login from '@/feature/auth/login';
 import CreateProduct from '@/feature/product/create-product';
 import Ratting from '@/feature/ratting/ratting';
 import Brand from '@/feature/brand/brand';
-import Protected from '@/router/protected';
+import Protected from '@/core/router/protected';
 import ProductDetails from '@/feature/product/details';
 
 

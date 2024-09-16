@@ -2,8 +2,8 @@ import { useGetCouponQuery } from './api';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { SquarePen, TrashIcon } from 'lucide-react';
 import { ICouponTypes } from './types';
-import { useAppSelector } from '@/hooks/rtk';
-import { BASE_URL, UserRole } from '@/constant/constant';
+import { useAppSelector } from '@/core/hooks/rtk';
+import { BASE_URL, UserRole } from '@/core/constant/constant';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format } from 'date-fns';
 

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
@@ -16,6 +16,7 @@ import { OrderModule } from './services/order/module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
 import { BrandModule } from './services/brand/module';
+import { MorganMiddleware } from '@nest-middlewares/morgan';
 
 
 @Module({
@@ -47,4 +48,10 @@ import { BrandModule } from './services/brand/module';
   ],
   controllers: [AppController],
 })
-export class AppModule { }
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    MorganMiddleware.configure('tiny');
+    consumer.apply(MorganMiddleware).forRoutes('*');
+  }
+}
+

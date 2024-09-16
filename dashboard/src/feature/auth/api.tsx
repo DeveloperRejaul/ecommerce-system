@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { api } from '@/rtk/api';
+import { api } from '@/core/rtk/api';
 import { login, logout } from './slice';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/core/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { addUser } from '../users/userSlice';
 

@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { BASE_URL } from '@/constant/constant';
+import { BASE_URL } from '@/core/constant/constant';
 import { useGetAllCategoryQuery } from './api';
 import { ICategoryType } from './types';
 import { SquarePen, TrashIcon } from 'lucide-react';

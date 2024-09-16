@@ -1,6 +1,6 @@
 import { Loading } from '@/components/loading';
 import { useLazyCheckValidUserQuery } from '@/feature/auth/api';
-import { useAppSelector } from '@/hooks/rtk';
+import { useAppSelector } from '@/core/hooks/rtk';
 import { ReactNode, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { path } from './router';

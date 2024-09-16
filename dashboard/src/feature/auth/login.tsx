@@ -5,11 +5,11 @@ import { useForm } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormLabel, Form, FormMessage } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BtnLoading } from '@/components/loading';
-import { useAppSelector } from '@/hooks/rtk';
+import { useAppSelector } from '@/core/hooks/rtk';
 import { Navigate } from 'react-router-dom';
 import { formSchema } from './loginSchema';
 import { z } from 'zod';
-import { path } from '@/router/router';
+import { path } from '@/core/router/router';
 
 export default function Login() {
   const [handleLogin, response] = useLoginMutation();

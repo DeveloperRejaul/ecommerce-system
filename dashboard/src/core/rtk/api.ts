@@ -1,4 +1,4 @@
-import { BASE_URL } from '@/constant/constant';
+import { BASE_URL } from '@/core/constant/constant';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 

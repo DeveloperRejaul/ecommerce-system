@@ -8,9 +8,9 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAppSelector } from '@/hooks/rtk';
-import { capitalizeEachWord } from '@/lib/utils';
-import { BASE_URL } from '@/constant/constant';
+import { useAppSelector } from '@/core/hooks/rtk';
+import { capitalizeEachWord } from '@/core/lib/utils';
+import { BASE_URL } from '@/core/constant/constant';
 
 export function SheetCom() {
     const { role, email, avatar, name, address } = useAppSelector(state => state.user);

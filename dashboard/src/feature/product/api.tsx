@@ -1,6 +1,6 @@
 import { ToastAction } from '@/components/ui/toast';
-import { toast } from '@/hooks/use-toast';
-import { api } from '@/rtk/api';
+import { toast } from '@/core/hooks/use-toast';
+import { api } from '@/core/rtk/api';
 
 export const productApi = api.injectEndpoints({
     overrideExisting: true,

@@ -1,5 +1,5 @@
-import { UserRole } from '@/constant/constant';
-import { useAppSelector } from '@/hooks/rtk';
+import { UserRole } from '@/core/constant/constant';
+import { useAppSelector } from '@/core/hooks/rtk';
 import { NavLink } from 'react-router-dom';
 import {
   Accordion,

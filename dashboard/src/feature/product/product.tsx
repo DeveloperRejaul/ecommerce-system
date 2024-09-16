@@ -3,7 +3,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { ProductType } from './types';
 import { ArrowBigRightDash } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { path } from '@/router/router';
+import { path } from '@/core/router/router';
 
 export default function Product() {
     const product = useGetAllProductQuery(undefined);

@@ -1,7 +1,7 @@
 import { RouterProvider } from 'react-router-dom';
-import { router } from './router/router';
+import { router } from './core/router/router';
 import { Provider } from 'react-redux';
-import { store } from './rtk/store';
+import { store } from './core/rtk/store';
 import { Toaster } from '@/components/ui/toaster';
 
 

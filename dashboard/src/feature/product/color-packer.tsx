@@ -1,5 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { colorNames } from "@/constant/constant";
+import { colorNames } from "@/core/constant/constant";
 import { Plus, X } from "lucide-react";
 import { useState } from "react";
 

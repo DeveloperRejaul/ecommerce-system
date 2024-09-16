@@ -1,5 +1,5 @@
-import { api } from '@/rtk/api';
-import { toast } from '@/hooks/use-toast';
+import { api } from '@/core/rtk/api';
+import { toast } from '@/core/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 
 export const shopApi = api.injectEndpoints({

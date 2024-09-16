@@ -1,4 +1,4 @@
-import { api } from '@/rtk/api';
+import { api } from '@/core/rtk/api';
 
 export const brandApi = api.injectEndpoints({
     overrideExisting: true,

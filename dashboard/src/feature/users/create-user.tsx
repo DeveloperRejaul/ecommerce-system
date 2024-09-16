@@ -8,8 +8,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { UserRole } from '@/constant/constant';
-import { useAppSelector } from '@/hooks/rtk';
+import { UserRole } from '@/core/constant/constant';
+import { useAppSelector } from '@/core/hooks/rtk';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createRef, useState } from 'react';
