@@ -30,7 +30,7 @@ export default function CreateProduct() {
     const shops = useGetShopQuery(undefined);
     const brand = useGetAllBrandQuery(undefined);
     const coupon = useGetCouponQuery(undefined);
-    const [createProduct, productRes] = useCreateProductMutation();
+    const [createProduct] = useCreateProductMutation();
 
     const role = useAppSelector(state => state.user.role);
     const shop = useAppSelector(state => state.user.shopId);

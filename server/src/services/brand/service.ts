@@ -63,13 +63,13 @@ export class BrandService {
 
   async getAll(auth: AuthBody) {
     if (auth.role === UserRole.OWNER) {
-      return await this.model.find();
+      return await this.model.find().populate('shopId');
     }
-    return await this.model.find({ shopId: auth.shopId });
+    return await this.model.find({ shopId: auth.shopId }).populate('shopId');
   }
 
   async getSingle(id: string) {
-    if (id) return await this.model.findById({ _id: id });
+    if (id) return await this.model.findById({ _id: id }).populate('shopId');
     throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
   }
 
