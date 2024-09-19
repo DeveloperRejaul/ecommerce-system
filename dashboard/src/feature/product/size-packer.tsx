@@ -10,16 +10,18 @@ import {
 import { Button } from "@/components/ui/button";
 
 
-interface SizesProps {
-    onChange: (sizes: ISizeTypes) => void;
-}
-
 interface ISizeTypes {
     [key: string]: number;
 }
 
-export default function SizesPacker({ onChange }: SizesProps) {
-    const [sizes, setSize] = useState<ISizeTypes>({});
+interface SizesProps {
+    onChange: (sizes: ISizeTypes) => void;
+    size?: ISizeTypes
+}
+
+
+export default function SizesPacker({ onChange, size }: SizesProps) {
+    const [sizes, setSize] = useState<ISizeTypes>(size || {});
 
 
     useEffect(() => {

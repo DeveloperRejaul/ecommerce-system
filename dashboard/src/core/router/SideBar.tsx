@@ -59,6 +59,13 @@ export default function SideBar() {
                 Product List
               </NavLink>
               <NavLink
+                style={{ pointerEvents: "none" }}
+                className={({ isActive }) => isActive ? activeClass : inActiveClass}
+                to={path.PRODUCT_EDIT}
+                end={false} >
+                Update Product
+              </NavLink>
+              <NavLink
                 className={({ isActive }) => isActive ? activeClass : inActiveClass}
                 to={path.RATTING}
                 end={false} >

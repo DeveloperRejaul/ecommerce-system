@@ -52,16 +52,12 @@ export class ProductService {
   async updateProduct(id: string, auth: AuthBody, body, files: IFileType[]) {
     const { role, shopId } = auth;
 
-
     if (role === UserRole.OWNER) {
       if (files) {
         const promises = files.map(async file => await saveFile(file));
         body.images = await Promise.all(promises);
       }
-      return await this.model.findByIdAndUpdate(id, {
-        $set: { body },
-        $push: { couponId: body.couponId, userId: body?.userId, color: body?.color }
-      }, { new: true });
+      return await this.model.findByIdAndUpdate(id, body, { new: true });
     }
 
     if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) {
@@ -71,10 +67,7 @@ export class ProductService {
           const promises = files.map(async file => await saveFile(file));
           body.images = await Promise.all(promises);
         }
-        return await this.model.findByIdAndUpdate(id, {
-          $set: { body },
-          $push: { couponId: body.couponId, userId: body?.userId, color: body?.color }
-        }, { new: true });
+        return await this.model.findByIdAndUpdate(id, body, { new: true });
       }
     }
 

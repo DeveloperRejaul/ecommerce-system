@@ -5,7 +5,7 @@ export const formSchema = z.object({
     title: z.string().min(10, { message: "Title must 10 chart" }).max(100, { message: "Title max length 100" }),
     description: z.string().min(50, { message: "Title must 50 chart" }).max(10000, { message: "Title max length 10000" }),
     category: z.string({ message: "Category must require " }),
-    buyPrice: z.string({ message: "Buy price must require " }),
+    buyPrice: z.string(),
     shopId: z.string().optional(),
     couponId: z.string().optional(),
     brandId: z.string({ message: "Brand must require " }),

@@ -34,11 +34,39 @@ export const productApi = api.injectEndpoints({
                     });
                 }
             },
-        })
+        }),
+
+        updateProduct: builder.mutation({
+            query: ({ data, id }) => {
+                return {
+                    method: "PUT",
+                    url: `/product/${id}`,
+                    body: data
+                };
+            },
+            async onQueryStarted(_, { queryFulfilled }) {
+                try {
+                    await queryFulfilled;
+                    toast({
+                        title: 'Update Success!',
+                        description: "Category Update Successfully",
+                        action: <ToastAction altText="Goto schedule to undo"> Undo </ToastAction>
+                    });
+                } catch (e) {
+                    toast({
+                        title: 'Update Failed!',
+                        // @ts-ignore
+                        description: e.error.data.error,
+                        action: <ToastAction altText="Goto schedule to undo"> Undo </ToastAction>
+                    });
+                }
+            },
+        }),
     })
 });
 
 export const {
     useGetAllProductQuery,
-    useCreateProductMutation
+    useCreateProductMutation,
+    useUpdateProductMutation,
 } = productApi;

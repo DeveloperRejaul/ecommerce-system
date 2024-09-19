@@ -1,23 +1,28 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { colorNames } from "@/core/constant/constant";
 import { Plus, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 interface ColorsProps {
-    onRemove: (name: string) => void;
-    onAdd: (name: string) => void;
+    onChange: (colors: string[]) => void;
+    colors?: string[]
 }
 
-export default function ColorsPacker({ onAdd, onRemove }: ColorsProps) {
+export default function ColorsPacker({ colors, onChange }: ColorsProps) {
 
-    const [colors, setColor] = useState<string[]>([]);
+    const [color, setColor] = useState<string[]>(colors || []);
+
+
+    useEffect(() => {
+        onChange(color);
+    }, [color]);
+
 
     // this function is used for add color to state array
     const handleColor = (name: string) => {
         setColor(pre => {
             if (!pre.includes(name)) {
-                onAdd(name);
                 return [...pre, name];
             }
             return pre;
@@ -26,7 +31,6 @@ export default function ColorsPacker({ onAdd, onRemove }: ColorsProps) {
 
     // this function is used fro remove color from state array
     const handleRemove = (name: string) => {
-        onRemove(name);
         setColor(pre => pre.filter(c => c !== name));
     };
 
@@ -35,7 +39,7 @@ export default function ColorsPacker({ onAdd, onRemove }: ColorsProps) {
         <div>
             <p> Colors </p>
             <div className="border gap-2 p-2 flex flex-wrap min-h-16" style={{ marginTop: 4 }}>
-                {colors.map((name, index) => <div key={Math.random() * index} className="bg-muted p-1">
+                {color.map((name, index) => <div key={Math.random() * index} className="bg-muted p-1">
                     <div className="flex">
                         <p className="bg-muted">{name}</p>
                         <X className="cursor-pointer font-bold bg-black ml-1 " size={20} onClick={() => handleRemove(name)} />

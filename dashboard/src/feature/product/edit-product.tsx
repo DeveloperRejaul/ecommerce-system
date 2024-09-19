@@ -18,26 +18,52 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "./schema";
 import { useGetAllBrandQuery } from "../brand/api";
-import { useCreateProductMutation } from "./api";
 import { useGetCouponQuery } from "../coupon/api";
+import { useLocation } from "react-router-dom";
+import { calculateProfitParentage } from "@/core/lib/persentis";
+import { useUpdateProductMutation } from "./api";
+import { useEffect } from "react";
 
 let colors: string[] = [];
 let sizes: { [key: string]: number } = {};
 let files: File[] = [];
 
-export default function CreateProduct() {
+export default function EditProduct() {
     const category = useGetAllCategoryQuery(undefined);
     const shops = useGetShopQuery(undefined);
     const brand = useGetAllBrandQuery(undefined);
     const coupon = useGetCouponQuery(undefined);
-    const [createProduct] = useCreateProductMutation();
+    const { state } = useLocation();
+
+    const [updateProduct, res] = useUpdateProductMutation();
 
     const role = useAppSelector(state => state.user.role);
     const shop = useAppSelector(state => state.user.shopId);
 
+
+
+    useEffect(() => {
+        // mutate parent scopes value 
+        colors = state.color;
+        sizes = state.size;
+    }, []);
+
+
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: {},
+        defaultValues: {
+            name: state.name,
+            title: state.title,
+            buyPrice: state.buyPrice?.toString(),
+            sellPrice: calculateProfitParentage(state.buyPrice, state.sellPrice),
+            description: state.description,
+            quantity: state.quantity?.toString(),
+            couponId: state.couponId?._id,
+            brandId: state.brandId._id,
+            shopId: state.shopId._id,
+            category: state.categoryId?._id,
+        },
     });
 
 
@@ -49,7 +75,6 @@ export default function CreateProduct() {
         formData.append('description', data.description);
         formData.append('buyPrice', data.buyPrice);
         formData.append('quantity', data.quantity);
-
         formData.append('size', JSON.stringify(sizes));
         formData.append('color', JSON.stringify(colors));
 
@@ -71,16 +96,18 @@ export default function CreateProduct() {
         const total = buy + percentage;
         formData.append('sellPrice', total.toString());
 
-        // calling api 
-        createProduct(formData);
+        // calling api
+        updateProduct({ data: formData, id: state._id });
 
         // reset form 
-        form.reset();
+        // form.reset();
     };
+
+
 
     return (
         <div className="flex flex-1 flex-col px-2 ">
-            <h1 className="text-2xl">Create Product</h1>
+            <h1 className="text-2xl">Update Product</h1>
             <Form {...form}>
                 <form className="grid gap-y-4 lg:gap-x-6 lg:grid-cols-2" onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField
@@ -174,7 +201,7 @@ export default function CreateProduct() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Shop</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
+                                <Select onValueChange={field.onChange} value={field.value} >
                                     <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select shop" />
@@ -259,16 +286,16 @@ export default function CreateProduct() {
                     {/* Product Images */}
                     <div className="space-y-2">
                         <Label>Product Images</Label>
-                        <ImgPacker onChange={(f) => files = f} />
+                        <ImgPacker onChange={(f) => files = f} images={state.images} />
                     </div>
+
+
                     {/* handle color */}
-                    <ColorsPacker onChange={(c) => colors = c} />
+                    <ColorsPacker colors={state.color} onChange={(c) => colors = c} />
 
                     {/* handle size part */}
-                    <SizesPacker onChange={(si) => sizes = si} />
-
-                    <Button type="submit">Create Product</Button>
-
+                    <SizesPacker onChange={(si) => sizes = si} size={state.size} />
+                    <Button type="submit">Update Product</Button>
                 </form>
             </Form>
         </div>

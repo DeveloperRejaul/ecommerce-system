@@ -14,6 +14,7 @@ export class JoiValidationPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata) {
 
     if (metadata.type === 'body') {
+
       if (value?.size) value.size = JSON.parse(value.size);
       const { error } = this.schema.validate(value, { abortEarly: false });
 

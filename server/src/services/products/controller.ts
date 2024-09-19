@@ -39,7 +39,7 @@ export class ProductController {
   @UseGuards(AuthGuard)
   @UsePipes(new JoiValidationPipe(updateProductSchema))
   @UseInterceptors(FilesInterceptor('images'))
-  updateProduct(@Param() param, @Request() req, @Body() body, @UploadedFiles() files) {
+  async updateProduct(@Param() param, @Request() req, @Body() body, @UploadedFiles() files) {
     return this.service.updateProduct(param.id, req, body, files);
   }
 

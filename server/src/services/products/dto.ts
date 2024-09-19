@@ -37,7 +37,8 @@ export const updateProductSchema = Joi.object().keys({
   size: Joi.object().keys({ s: Joi.number(), m: Joi.number(), l: Joi.number(), xl: Joi.number(), '2xl': Joi.number(), '3xl': Joi.number(), '4xl': Joi.number() })
     .custom((value, helpers) => {
       const totalSize = (value.s || 0) + (value.m || 0) + (value.l || 0) + (value.xl || 0) + (value['2xl'] || 0) + (value['3xl'] || 0) + (value['4xl'] || 0);
-      if (totalSize !== helpers.state.ancestors[0].quantity) {
+
+      if (totalSize !== +helpers.state.ancestors[0].quantity) {
         //@ts-ignore
         return helpers.message(`The total of sizes of number must equal the quantity ${helpers.state.ancestors[0].quantity}`);
       }

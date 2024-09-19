@@ -1,20 +1,36 @@
 import { Input } from "@/components/ui/input";
+import { urlToFile } from "@/core/lib/file";
 import { Plus, X } from "lucide-react";
-import { createRef, useState } from "react";
+import { createRef, useEffect, useState } from "react";
 
 interface ImgPackerProps {
-    addFile: (file: File) => void
-    removeFile: (file: File) => void
+    onChange: (file: File[]) => void;
+    images?: string[],
 }
 
-export default function ImgPacker({ addFile, removeFile }: ImgPackerProps) {
+export default function ImgPacker({ images, onChange }: ImgPackerProps) {
     const [files, setFiles] = useState<File[]>([]);
     const fileInputRef = createRef<HTMLInputElement>();
+
+
+    useEffect(() => {
+        (async () => {
+            if (images) {
+                const imageFiles = await Promise.all(images.map((url: string) => urlToFile(url)));
+                setFiles(imageFiles);
+            }
+        })();
+    }, []);
+
+
+    useEffect(() => {
+        onChange(files);
+    }, [files]);
+
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
             const file = event.target.files[0];
-            addFile(file);
             setFiles(pre => [...pre, file]);
         };
     };
@@ -25,7 +41,6 @@ export default function ImgPacker({ addFile, removeFile }: ImgPackerProps) {
 
     const handleRemove = (src: File) => {
         setFiles(pre => pre.filter(fl => fl !== src));
-        removeFile(src);
     };
 
     return (

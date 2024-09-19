@@ -29,6 +29,7 @@ export interface ProductType {
     userId: IUsersData[];
     shopId: string;
     brandId: BrandTypes;
+    rating: number;
     createdAt: string;
     updatedAt: string;
     __v: string;
