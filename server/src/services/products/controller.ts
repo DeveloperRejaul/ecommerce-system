@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Request, UploadedFiles, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request, UploadedFiles, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { ProductService } from './service';
 import { AuthGuard } from '../auth/auth.guard';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -21,8 +21,8 @@ export class ProductController {
 
   @Get()
   @UseGuards(AuthGuard)
-  getAllProduct(@Request() req) {
-    return this.service.getAllProduct(req);
+  getAllProduct(@Request() req, @Query() { limit, skip }) {
+    return this.service.getAllProduct(req, limit, skip);
   };
 
   @Get('shop/:id')

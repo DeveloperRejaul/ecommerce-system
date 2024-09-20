@@ -35,7 +35,7 @@ export default function EditProduct() {
     const coupon = useGetCouponQuery(undefined);
     const { state } = useLocation();
 
-    const [updateProduct, res] = useUpdateProductMutation();
+    const [updateProduct] = useUpdateProductMutation();
 
     const role = useAppSelector(state => state.user.role);
     const shop = useAppSelector(state => state.user.shopId);
@@ -98,9 +98,6 @@ export default function EditProduct() {
 
         // calling api
         updateProduct({ data: formData, id: state._id });
-
-        // reset form 
-        // form.reset();
     };
 
 

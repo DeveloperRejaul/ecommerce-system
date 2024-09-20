@@ -22,7 +22,7 @@ export const productApi = api.injectEndpoints({
                     await queryFulfilled;
                     toast({
                         title: 'Create Success!',
-                        description: "Category Create Successfully",
+                        description: "Product Create Successfully",
                         action: <ToastAction altText="Goto schedule to undo"> Undo </ToastAction>
                     });
                 } catch (e) {
@@ -49,12 +49,38 @@ export const productApi = api.injectEndpoints({
                     await queryFulfilled;
                     toast({
                         title: 'Update Success!',
-                        description: "Category Update Successfully",
+                        description: "Product Update Successfully",
                         action: <ToastAction altText="Goto schedule to undo"> Undo </ToastAction>
                     });
                 } catch (e) {
                     toast({
                         title: 'Update Failed!',
+                        // @ts-ignore
+                        description: e.error.data.error,
+                        action: <ToastAction altText="Goto schedule to undo"> Undo </ToastAction>
+                    });
+                }
+            },
+        }),
+
+        deleteProduct: builder.mutation({
+            query: (id) => {
+                return {
+                    method: "DELETE",
+                    url: `/product/${id}`
+                };
+            },
+            async onQueryStarted(_, { queryFulfilled }) {
+                try {
+                    await queryFulfilled;
+                    toast({
+                        title: 'Delete Success!',
+                        description: "Product Delete Successfully",
+                        action: <ToastAction altText="Goto schedule to undo"> Undo </ToastAction>
+                    });
+                } catch (e) {
+                    toast({
+                        title: 'Delete Failed!',
                         // @ts-ignore
                         description: e.error.data.error,
                         action: <ToastAction altText="Goto schedule to undo"> Undo </ToastAction>
@@ -69,4 +95,5 @@ export const {
     useGetAllProductQuery,
     useCreateProductMutation,
     useUpdateProductMutation,
+    useDeleteProductMutation
 } = productApi;
