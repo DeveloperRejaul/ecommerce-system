@@ -4,9 +4,10 @@ interface IPagination {
     handlePrevues: () => void
     handleNext: () => void
     activePageNumber: number
+    handlePageNumber: (num: number) => void
 }
 
-export default function Pagination({ totalPage, handleNext, handlePrevues, activePageNumber }: IPagination) {
+export default function Pagination({ totalPage, handleNext, handlePrevues, activePageNumber, handlePageNumber }: IPagination) {
     return (
         <div className='py-4 flex justify-between px-10 bg-muted' >
             <p>Total page : {totalPage}</p>
@@ -15,7 +16,7 @@ export default function Pagination({ totalPage, handleNext, handlePrevues, activ
                 <p className="px-3 py-1 bg-yellow-700 hover:bg-yellow-700 cursor-pointer ">{activePageNumber}</p>
                 {activePageNumber >= totalPage ?
                     <p className="px-3 py-1" /> :
-                    <p className="px-3 py-1 hover:bg-yellow-700 cursor-pointer">{activePageNumber + 1}</p>
+                    <p className="px-3 py-1 hover:bg-yellow-700 cursor-pointer" onClick={() => handlePageNumber(activePageNumber + 1)}>{activePageNumber + 1}</p>
                 }
                 <p className={`hover:text-yellow-700 cursor-pointer ${activePageNumber >= totalPage && "pointer-events-none"}`}
                     onClick={handleNext}>

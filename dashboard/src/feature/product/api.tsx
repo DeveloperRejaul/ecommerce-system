@@ -6,7 +6,9 @@ export const productApi = api.injectEndpoints({
     overrideExisting: true,
     endpoints: (builder) => ({
         getAllProduct: builder.query({
-            query: () => "/product"
+            query: ({ limit = 10, skip = 0 }) => {
+                return `/product?limit=${limit}&skip=${skip}`;
+            }
         }),
 
         createProduct: builder.mutation({
@@ -23,7 +25,7 @@ export const productApi = api.injectEndpoints({
                     toast({
                         title: 'Create Success!',
                         description: "Product Create Successfully",
-                        action: <ToastAction altText="Goto schedule to undo"> Undo </ToastAction>
+                        action: <ToastAction altText="Goto schedule to undo" > Undo </ToastAction>
                     });
                 } catch (e) {
                     toast({
@@ -93,6 +95,7 @@ export const productApi = api.injectEndpoints({
 
 export const {
     useGetAllProductQuery,
+    useLazyGetAllProductQuery,
     useCreateProductMutation,
     useUpdateProductMutation,
     useDeleteProductMutation

@@ -10,7 +10,7 @@ export function DialogCom({ children, btnText }: { children: ReactNode, btnText:
     return (
         <Dialog>
             <DialogTrigger asChild >
-                {btnText.includes('product') || <p className='border px-4 py-2 cursor-pointer rounded-md'>Create {btnText.replace('/', ' ')} </p>}
+                {['product', 'ratting'].some(e => btnText.includes(e)) || <p className='border px-4 py-2 cursor-pointer rounded-md'>Create {btnText.replace('/', ' ')} </p>}
             </DialogTrigger>
             <DialogContent>
                 {children}

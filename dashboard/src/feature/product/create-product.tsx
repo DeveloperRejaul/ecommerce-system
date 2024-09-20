@@ -37,7 +37,7 @@ export default function CreateProduct() {
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: {},
+        defaultValues: { name: "", title: "", description: "", brandId: "", buyPrice: "", category: "", couponId: "", quantity: "", sellPrice: "", shopId: "" },
     });
 
 
@@ -76,6 +76,9 @@ export default function CreateProduct() {
 
         // reset form 
         form.reset();
+        colors = [];
+        sizes = {};
+        files = [];
     };
 
     return (

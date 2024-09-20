@@ -89,7 +89,7 @@ export class ProductService {
     }
 
     if (roleAvailable([ADMIN, SUPER_ADMIN, MODERATOR], role)) {
-      const data = this.model.find({ shopId }).limit(limit).skip(skip).select('-userId -couponId').populate('shopId').populate('categoryId').populate('brandId').exec();
+      const data = await this.model.find({ shopId }).limit(limit).skip(skip).select('-userId -couponId').populate('shopId').populate('categoryId').populate('brandId').exec();
       return { data, total_page };
     }
     throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);

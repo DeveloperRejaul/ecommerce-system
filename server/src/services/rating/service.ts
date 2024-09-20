@@ -15,10 +15,14 @@ export class RatingService {
   ) { }
 
   async creatingRating(body: CreateRatingDto, auth: AuthBody) {
+    console.log(body);
+
     const { id, shopId } = auth;
     const product = await this.productModel.findById(body.productId);
 
-    if (product.shopId.toString() !== shopId) throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+    if (product.shopId.toString() !== shopId) {
+      throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+    };
 
     const isValidUser = product.userId.map(uId => uId.toString()).includes(id);
 

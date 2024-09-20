@@ -10,8 +10,12 @@ import Alert from '@/components/Alert';
 import { useState } from 'react';
 import Pagination from '@/components/pagination';
 
+const limit = 10;
+let skip = 0;
+let activePage = 1;
+
 export default function Product() {
-    const product = useGetAllProductQuery(undefined);
+    const product = useGetAllProductQuery({ limit, skip });
     const [deleteProduct] = useDeleteProductMutation();
     const navigate = useNavigate();
 
@@ -33,6 +37,31 @@ export default function Product() {
     };
 
 
+    // handle next page
+    const handleNext = () => {
+        if (skip <= product.data.total_page) {
+            skip = (limit + skip);
+            product.refetch();
+            activePage += 1;
+        }
+    };
+
+    // handle previous page
+    const handlePrevious = () => {
+        if (skip >= 1) {
+            skip = skip - limit;
+            product.refetch();
+            activePage -= 1;
+        }
+    };
+
+    // handle page number
+    const handlePageNumber = (pageNum: number) => {
+        skip = ((pageNum - 1) * limit);
+        activePage = pageNum;
+        product.refetch();
+    };
+
     return <>
         <Alert
             isOpen={isAlert}
@@ -50,7 +79,7 @@ export default function Product() {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {(product.data?.data || [])?.map((d: ProductType, i: number) => {
+                {product.data?.data.map((d: ProductType, i: number) => {
                     const sizes = Object.keys(d.size);
                     const imageUrl = `${BASE_URL}/file/${d.images[0]}`;
                     return (
@@ -103,9 +132,10 @@ export default function Product() {
         </Table >
         <Pagination
             totalPage={product.data?.total_page || 0}
-            handleNext={() => { }}
-            handlePrevues={() => { }}
-            activePageNumber={1}
+            handleNext={handleNext}
+            handlePrevues={handlePrevious}
+            activePageNumber={activePage}
+            handlePageNumber={handlePageNumber}
         />
         <p className='py-3 text-muted-foreground text-center'>A list of your all Product</p>
     </>;
