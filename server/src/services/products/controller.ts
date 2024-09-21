@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request, UploadedFiles, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UploadedFiles, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { ProductService } from './service';
 import { AuthGuard } from '../auth/auth.guard';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -15,14 +15,14 @@ export class ProductController {
   @UseGuards(AuthGuard)
   @UsePipes(new JoiValidationPipe(createProductSchema))
   @UseInterceptors(FilesInterceptor('images'))
-  creatingProduct(@Request() req, @Body() body, @UploadedFiles() files) {
+  creatingProduct(@Req() req, @Body() body, @UploadedFiles() files) {
     return this.service.creatingProduct(req, body, files);
   };
 
   @Get()
   @UseGuards(AuthGuard)
-  getAllProduct(@Request() req, @Query() { limit, skip }) {
-    return this.service.getAllProduct(req, limit, skip);
+  getAllProduct(@Req() req, @Query() query) {
+    return this.service.getAllProduct(req, Number(query.limit), Number(query.skip), query.sort);
   };
 
   @Get('shop/:id')
@@ -39,13 +39,13 @@ export class ProductController {
   @UseGuards(AuthGuard)
   @UsePipes(new JoiValidationPipe(updateProductSchema))
   @UseInterceptors(FilesInterceptor('images'))
-  async updateProduct(@Param() param, @Request() req, @Body() body, @UploadedFiles() files) {
+  async updateProduct(@Param() param, @Req() req, @Body() body, @UploadedFiles() files) {
     return this.service.updateProduct(param.id, req, body, files);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  deleteProduct(@Request() req, @Param() param) {
+  deleteProduct(@Req() req, @Param() param) {
     return this.service.deleteProduct(param.id, req);
   };
 }

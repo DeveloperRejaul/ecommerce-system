@@ -20,6 +20,13 @@ export class OrderService {
     @InjectModel(User.name) private userModel: Model<User>
   ) { }
 
+
+  /**
+   * @description This function is used to create a new order
+   * @param body order object
+   * @param auth user information object
+   * @returns order object
+   */
   async createOrder(body: CreateOrderDto, auth: AuthBody) {
     const { shopId } = auth;
     const { quantity } = body;
@@ -38,7 +45,7 @@ export class OrderService {
     // handle size
     const sizes = JSON.parse(JSON.stringify(product.size));
     const availableNumberOfSize = sizes[body.size];
-    if (availableNumberOfSize < 1) throw new HttpException('Size Not  available at the moment', HttpStatus.NO_CONTENT);;
+    if (availableNumberOfSize < 1) throw new HttpException('Size Not  available at the moment', HttpStatus.NO_CONTENT);
 
     // handle coupon
     if (body.coupon) {
@@ -77,6 +84,13 @@ export class OrderService {
     return order;
   }
 
+
+  /**
+   * @description This function is used to delete existing order
+   * @param id order id
+   * @param auth user information object
+   * @returns order object
+   */
   async deleteOrder(id: string, auth: AuthBody) {
     const { shopId, role, id: user } = auth;
     if (role === UserRole.OWNER) return await this.model.findByIdAndDelete(id);
@@ -92,25 +106,39 @@ export class OrderService {
   };
 
 
+  /**
+ * @description This function is used to get all existing order
+ * @param auth user information object
+ * @returns order array of object
+ */
   async getAllOrder(auth: AuthBody) {
     const { role, shopId } = auth;
-    if (role === UserRole.OWNER) {
-      return await this.model.find();
-    }
-    if (roleAvailable([ADMIN, MODERATOR, SUPER_ADMIN,], role)) {
-      return await this.model.find({ shopId });
-    }
+    if (role === UserRole.OWNER) return await this.model.find();
+    if (roleAvailable([ADMIN, MODERATOR, SUPER_ADMIN,], role)) return await this.model.find({ shopId });
   };
 
+
+  /**
+  * @description This function is used to get order by shopId
+  * @param shopId shop is
+  * @returns order array of object
+  */
   async getOrderByShopId(shopId: string) {
     return await this.model.find({ shopId });
   };
 
 
+/**
+* @description This function is used to get order by order id
+* @param id order id
+* @returns order array of object
+*/
   async getOrderById(id: string) {
     return await this.model.findById({ _id: id });
   };
 
+
+  
   async updateOrder(id: string, auth: AuthBody, body: UpdateOrderDto) {
     const { shopId, id: userId, role } = auth;
     if (role === UserRole.OWNER) {

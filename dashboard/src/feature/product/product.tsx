@@ -9,13 +9,15 @@ import Image from '@/components/image';
 import Alert from '@/components/Alert';
 import { useState } from 'react';
 import Pagination from '@/components/pagination';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const limit = 10;
 let skip = 0;
 let activePage = 1;
+let sort: string;
 
 export default function Product() {
-    const product = useGetAllProductQuery({ limit, skip });
+    const product = useGetAllProductQuery({ limit, skip, sort });
     const [deleteProduct] = useDeleteProductMutation();
     const navigate = useNavigate();
 
@@ -62,11 +64,34 @@ export default function Product() {
         product.refetch();
     };
 
+
+    const handleSort = (value: '-1' | '1') => {
+        if (value === '-1') sort = value;
+        if (value === '1') sort = value;
+        product.refetch();
+    };
+
+
     return <>
         <Alert
             isOpen={isAlert}
             handleActin={handleDeleteAction}
             message='This action cannot be undone. This will permanently delete your product and remove your data from database.' />
+        <div className='flex items-center justify-between px-4 py-2'>
+            <h1 className="text-2xl">All Product List</h1>
+            {/* Handle Filter  */}
+            <Select onValueChange={handleSort}>
+                <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Sort by price" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectGroup>
+                        <SelectItem value="-1">Price high to low</SelectItem>
+                        <SelectItem value="1">Price low to high</SelectItem>
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
+        </div>
         <Table>
             <TableHeader>
                 <TableRow>
@@ -74,6 +99,7 @@ export default function Product() {
                     <TableHead>Price</TableHead>
                     <TableHead>Stock</TableHead>
                     <TableHead>Category</TableHead>
+                    <TableHead>Brand</TableHead>
                     <TableHead>Rating</TableHead>
                     <TableHead className='text-right'>Action</TableHead>
                 </TableRow>
@@ -85,25 +111,25 @@ export default function Product() {
                     return (
                         <TableRow key={Math.random() * i}>
                             <TableCell>
-
                                 <div className='flex items-center space-x-2'>
                                     <div className='overflow-hidden' style={{ borderRadius: 7 }}>
                                         <Image src={imageUrl} alt='IMG' className='h-20 w-20 object-cover' />
                                     </div>
                                     <div>
-                                        <p
-                                            className='cursor-pointer'
-                                            onClick={() => navigate(`${path.PRODUCT}/${d._id}`)}>
-                                            {d.name || "Black T-shirt "}
-                                        </p>
+                                        <p className='cursor-pointer' >{d.name || "Black T-shirt"}</p>
                                         <p className='text-gray-400'>Size: {sizes.map(d => <span key={d}> {d.toUpperCase()}</span>)} </p>
+                                        <div className='flex gap-x-1 items-center'>
+                                            <p className='mr-2'>Color:</p>
+                                            {d.color.map(color => <div key={color} className='h-3 w-3 rounded-full' style={{ background: color }} />)}
+                                            {d.color.length === 0 && <p>N/A</p>}
+                                        </div>
                                     </div>
-
                                 </div>
                             </TableCell>
                             <TableCell>{Math.ceil(Number(d.sellPrice))} </TableCell>
                             <TableCell>{d.quantity} Item </TableCell>
                             <TableCell>{d.categoryId.name}</TableCell>
+                            <TableCell>{d.brandId.name}</TableCell>
                             <TableCell>
                                 <div className='flex items-center gap-x-1'>
                                     <Star className='fill-yellow-300 stroke-none' />

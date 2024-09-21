@@ -6,9 +6,7 @@ export const productApi = api.injectEndpoints({
     overrideExisting: true,
     endpoints: (builder) => ({
         getAllProduct: builder.query({
-            query: ({ limit = 10, skip = 0 }) => {
-                return `/product?limit=${limit}&skip=${skip}`;
-            }
+            query: ({ limit = 10, skip = 0, sort }) => `/product?limit=${limit}&skip=${skip}&sort=${sort}`,
         }),
 
         createProduct: builder.mutation({

@@ -15,8 +15,6 @@ export class RatingService {
   ) { }
 
   async creatingRating(body: CreateRatingDto, auth: AuthBody) {
-    console.log(body);
-
     const { id, shopId } = auth;
     const product = await this.productModel.findById(body.productId);
 
