@@ -1,0 +1,90 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    container_name: postgres
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    container_name:  pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=pgadmin4
+    ports:
+      - '5050:80'
+    depends_on:
+      - db
+
+  server:
+    container_name: server
+    environment:
+      - SERVER_PORT=3001
+      - JWT_SECRET=eecommerce-tem
+      - ORIGIN=http://localhost:5173,http://192.168.0.198:8081,http://localhost:3001,http://localhost:8081,http://172.20.0.1:5173/,http://192.168.68.113:5173/
+      - EMAIL_HOST=smtp-relay.brevo.com
+      - POST=587
+      - EMAIL_USERNAME=devrejaul.official@gmail.com
+      - EMAIL_PASSWORD=APCFyBLM0kp2jN9s
+      - COOKIE_KEY=eecommerce
+      - DB_PORT=5432
+      - DB_HOST=postgres
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=postgres
+      - CLOUDINARY_API_KEY=285945558357813
+      - CLOUDINARY_API_SECRET=khuPFA09D_QqaPCycinRmwWgb-Y
+      - CLOUDINARY_CLOUD_NAME=aptinity1
+
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: "always"
+    depends_on:
+      - db
+      - pgadmin
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server/src:/app/src # this is for only development
+      - ./server/upload:/app/upload
+      - ./backups:/backups
+
+  client:
+    container_name: client
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    depends_on:
+          - server
+    ports:
+      - "8081:8081"
+  
+  # nginx:
+  #   build:
+  #     context: ./nginx
+  #     dockerfile: Dockerfile
+  #   image: nginx:latest
+  #   container_name: nginx
+  #   ports:
+  #     - "443:443"
+  #     - "80:80"
+  #   restart: always
+  #   volumes:
+  #     - ./nginx/ssl/certificate.crt:/etc/ssl/certificate.crt
+  #     - ./nginx/ssl/private.key:/etc/ssl/private.key
+  #   depends_on:
+  #     - server
+  #   networks:
+  #     - net
+
+
+  # networks:
+  #   net:
+  #     driver: bridge

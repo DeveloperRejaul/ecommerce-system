@@ -1,0 +1,40 @@
+/* This file adds the requisite utility classes for Tailwind to work. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root{
+  --primary: #1E88E5;
+  --secondary: #8E24AA;
+  --positive: #43A047;
+  --negative: #D32F2F;
+  --error: #E53935;
+  --warning: #FB8C00;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #1E88E5;
+    --secondary: #8E24AA;
+    --positive: #43A047;
+    --negative: #D32F2F;
+    --error: #E53935;
+    --warning: #FB8C00;
+  }
+}
+
+
+@layer components {
+    .container {
+      @apply self-center md:w-[60rem] lg:w-[70rem] ;
+    }
+}
+
+
+
+/* For IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

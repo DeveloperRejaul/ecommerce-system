@@ -1,0 +1,3 @@
+import Svg, { Circle, G, Path, Rect } from "react-native-svg";
+import { IconProps } from "./types";
+export const ListIcon = (props: IconProps) => <Svg viewBox="0 0 24 24" width={props.size} height={props.size} {...props}><Path d="m0 0h24v24h-24z" fill={"#fff"} opacity="0" transform="matrix(-1 0 0 -1 24 24)" /><G fill={props.color || "#231f20"}><Circle cx="4" cy="7" r="1" /><Circle cx="4" cy="12" r="1" /><Circle cx="4" cy="17" r="1" /><Rect height="2" rx=".94" width="14" x="7" y="11" /><Rect height="2" rx=".94" width="14" x="7" y="16" /><Rect height="2" rx=".94" width="14" x="7" y="6" /></G></Svg>
