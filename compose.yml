@@ -56,16 +56,18 @@ services:
       - ./server/upload:/app/upload
       - ./backups:/backups
 
-  client:
-    container_name: client
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    depends_on:
-          - server
-    ports:
-      - "8081:8081"
-  
+  # Only For Productions 
+  # client:
+  #   container_name: client
+  #   build:
+  #     context: ./client
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #         - server
+  #   ports:
+  #     - "8081:8081"
+
+  # Only for production
   # nginx:
   #   build:
   #     context: ./nginx
