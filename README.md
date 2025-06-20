@@ -2,6 +2,21 @@
 
 This is a **full-stack, scalable multivendor eCommerce platform** designed to support multiple shops under a single owner account. The system provides seamless functionality across web and mobile platforms and is built using modern technologies with CI/CD and Docker support for reliable deployment.
 
+
+# Mobile Screens (Demo)
+<br/>
+<p>
+<img src='./screenshut/01.jpg' height="400"/>
+<img src='./screenshut/02.jpg' height="400"/>
+<img src='./screenshut/03.jpg' height="400"/>
+<img src='./screenshut/04.jpg' height="400"/>
+<img src='./screenshut/05.jpg' height="400"/>
+<img src='./screenshut/06.jpg' height="400"/>
+<img src='./screenshut/07.jpg' height="400"/>
+</p>
+
+
+
 ### 🧩 Key Components
 
 | Layer              | Technology Stack                          | Description                                                                                                                      |
