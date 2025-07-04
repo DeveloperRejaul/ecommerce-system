@@ -1,8 +1,8 @@
 import { color } from './color';
 
 
-export const BASE_URL =  `http://192.168.0.199:3001/api/v-1`;
-export const SHOP_ID = 'f161e1e2-9128-452c-a55c-dda5fcf7399d';
+export const BASE_URL =  `http://192.168.0.198:3001/api/v-1`;
+export const SHOP_ID = '56d8bb7f-cce4-4571-b1dd-ea823d755aad';
 
 export enum CategoryType {
   ROUNDED='ROUNDED',

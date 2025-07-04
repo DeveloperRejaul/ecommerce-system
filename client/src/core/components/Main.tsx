@@ -5,8 +5,9 @@ import Expire from './Expire';
 
 export default function Main({ children }: Readonly<{children: React.ReactNode}>) {
   const { data, isLoading, isFetching } = useGetShopQuery(undefined);
-  const expirationDate = new Date(data?.expireDate || new Date());
+  const expirationDate = new Date(data?.expireDate || "");
   const currentDate = new Date();
+
 
   const isValid = currentDate < expirationDate;
 

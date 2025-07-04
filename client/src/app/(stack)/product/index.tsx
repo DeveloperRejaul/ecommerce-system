@@ -16,6 +16,8 @@ import { useGetProductByCategoryIdQuery, useLazyGetProductByCategoryIdPageQuery 
 import { Utils } from '@/src/core/utils/utils';
 import Error from '@/src/core/components/Error';
 import Empty from '@/src/core/components/Empty';
+import { ArrowLeft } from '@/src/core/assets/icons/arrow-left';
+import { FilterIcon } from '@/src/core/assets/icons/filter';
 
 let page = 0;
 const queryParams:{[key:string]:string} = {};
@@ -26,9 +28,9 @@ export default function Index() {
   const { data: products, isFetching, isLoading, isError, refetch } = useGetProductByCategoryIdQuery({ id: params.id });
   const filter = [
     { right: ArrowRight, text: 'Sort By', left: SortIcon },
-    // { right: ArrowLeft, text: 'Filter', left: FilterIcon },
+    { right: ArrowLeft, text: 'Filter', left: FilterIcon },
     { right: ArrowRight, text: 'Brand', left: null },
-    // { right: ArrowLeft, text: 'Discount', left: null },
+    { right: ArrowLeft, text: 'Discount', left: null },
   ];
 
   const handleFilter = (name:'Sort By' | 'Filter'|'Brand'|'Discount'| string) => {
