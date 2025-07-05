@@ -144,6 +144,7 @@ INSERT INTO public."Users" (
 
 # Mobile Screens (Demo)
 <br/>
+<p>
 <img src='./screenshut/01.jpg' height="400px" style="height:300px;"/>
 <img src='./screenshut/02.jpg' height="400px" style="height:300px;"/>
 <img src='./screenshut/03.jpg' height="400px" style="height:300px;"/>
@@ -166,7 +167,7 @@ INSERT INTO public."Users" (
 <img src='./screenshut/26.jpg' height="400px" style="height:300px;"/>
 <img src='./screenshut/27.jpg' height="400px" style="height:300px;"/>
 <img src='./screenshut/28.jpg' height="400px" style="height:300px;"/>
-
+</p>
 # Web Page (Demo)
 <br/>
 <p>
