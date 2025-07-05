@@ -171,13 +171,13 @@ INSERT INTO public."Users" (
 # Web Page (Demo)
 <br/>
 <p>
-    <img src='./screenshut/29.png' height="400"/>
-    <img src='./screenshut/30.png' height="400"/>
-    <img src='./screenshut/31.png' height="400"/>
-    <img src='./screenshut/32.png' height="400"/>
-    <img src='./screenshut/33.png' height="400"/>
-    <img src='./screenshut/34.png' height="400"/>
-    <img src='./screenshut/35.png' height="400"/>
+    <img src='./screenshut/29.png' height="400" style="height:300px;"/>
+    <img src='./screenshut/30.png' height="400" style="height:300px;"/>
+    <img src='./screenshut/31.png' height="400" style="height:300px;"/>
+    <img src='./screenshut/32.png' height="400" style="height:300px;"/>
+    <img src='./screenshut/33.png' height="400" style="height:300px;"/>
+    <img src='./screenshut/34.png' height="400" style="height:300px;"/>
+    <img src='./screenshut/35.png' height="400" style="height:300px;"/>
 </p>
 
 # Dashboard Page (Demo)
@@ -189,9 +189,9 @@ INSERT INTO public."Users" (
 # Marketing Page (Demo)
 <br/>
 <p>
-<img src='./screenshut/09.png' height="400"/>
-<img src='./screenshut/10.png' height="400"/>
-<img src='./screenshut/11.png' height="400"/>
-<img src='./screenshut/12.png' height="400"/>
-<img src='./screenshut/13.png' height="400"/>
+<img src='./screenshut/09.png' height="400" style="height:300px;"/>
+<img src='./screenshut/10.png' height="400" style="height:300px;"/>
+<img src='./screenshut/11.png' height="400" style="height:300px;"/>
+<img src='./screenshut/12.png' height="400" style="height:300px;"/>
+<img src='./screenshut/13.png' height="400" style="height:300px;"/>
 </p>
